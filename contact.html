@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Start Intake — Rooftop Money</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.form-wrap{background:#fff;border:1px solid #e6eaee;border-radius:16px;box-shadow:var(--shadow)}
+.form-head{padding:1.2rem;border-bottom:1px solid #eef2f5;display:flex;align-items:center;justify-content:space-between}
+.form-body{padding:1.2rem}
+label{display:block;font-size:.82rem;color:#6b7280;margin:0 0 .35rem}
+.input{width:100%;padding:.75rem .85rem;border:1.5px solid #e3e7eb;border-radius:10px;background:#fbfdff;outline:none}
+.input:focus{border-color:#b9d9cf; box-shadow:0 0 0 4px var(--ring)}
+.grid{display:grid;grid-template-columns:1fr 1fr; gap:1rem}
+.progress{height:8px;background:#ecf1f4;border-radius:999px;overflow:hidden}
+.progress > i{display:block;height:100%;width:33%;background:linear-gradient(90deg, var(--brand), var(--accent))}
+.bar-note{font-size:.75rem;color:#6b7280;margin:.4rem 0 .6rem}
+.helper-strip{border-top:1px solid #ecf1f4;background:#fcfdfd;color:#8a929a;padding:.5rem 1rem;border-bottom-left-radius:16px;border-bottom-right-radius:16px}
+.helper-strip a{color:#2c7a67}
+.small-btn{background:#eaf6f2;border:1px solid #d7efe7;color:#1f6e5e;border-radius:999px;padding:.55rem .8rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem}
+.row{display:grid;gap:.6rem}
+select.input{appearance:none;background:#fbfdff}
+.phone{display:grid;grid-template-columns: 1fr 2fr; gap:.6rem}
+.cta-row{display:flex;justify-content:flex-end}
+.deck{background:#f6faf9;border:1px solid #e0efe8;border-radius:12px;padding:.8rem;display:flex;align-items:center;gap:.55rem}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <div class="logo"><span class="logo-mark"></span>Capital&nbsp;Connect&nbsp;<span style="color:var(--brand)">LK</span></div>
+    <nav>
+      <a href="index.html#revenue">Revenue Share</a>
+      <a href="index.html#problems">Why Us</a>
+      <a href="index.html#process">Process</a>
+      <a href="index.html#about">About</a>
+    </nav>
+    <a href="#" class="btn small">Start Intake</a>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container" style="max-width:760px">
+    <div class="form-wrap">
+      <div class="form-head">
+        <div class="logo" style="gap:.4rem"><span class="logo-mark"></span>Capital&nbsp;Connect&nbsp;<span style="color:var(--brand)">LK</span></div>
+        <a class="btn small" href="#">Start Intake</a>
+      </div>
+      <div class="form-body">
+        <h2 style="margin-top:.2rem">Let’s Start Your Intake</h2>
+        <div class="grid mt-2">
+          <div class="row">
+            <label for="first">First Name*</label>
+            <input class="input" id="first" placeholder="First name">
+          </div>
+          <div class="row">
+            <label for="last">Last Name*</label>
+            <input class="input" id="last" placeholder="Last name">
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <label for="email">Email*</label>
+          <input class="input" id="email" type="email" placeholder="you@company.com">
+        </div>
+
+        <div class="row mt-2">
+          <label for="phone">Phone Number</label>
+          <div class="phone">
+            <select class="input" id="cc">
+              <option value="LK">LK +94</option>
+              <option value="US">US +1</option>
+              <option value="UK">UK +44</option>
+              <option value="IN">IN +91</option>
+            </select>
+            <input class="input" id="phone" placeholder="+94 7X XXX XXXX">
+          </div>
+        </div>
+
+        <div class="bar-note">33%</div>
+        <div class="progress"><i></i></div>
+
+        <div class="cta-row mt-2">
+          <button class="btn small" id="next">Next</button>
+        </div>
+      </div>
+      <div class="helper-strip">🧩 <a href="#">Create your own free forms</a> to generate leads from your website.</div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="caption">learn more</div>
+      <h2 style="margin:.1rem 0 .6rem">Discover how RooftopMoney can transform your rooftop into an income‑generating asset.</h2>
+      <div class="deck"><span>🟢</span> <strong>View Our Deck</strong></div>
+    </div>
+  </div>
+</main>
+
+<footer id="footer" class="footer">
+  <div class="container inner">
+    <div class="logo"><span class="logo-mark"></span>Capital&nbsp;Connect&nbsp;<span style="color:#9ee7c3">LK</span></div>
+    <div>A Zero Risk, Zero Cost, Turnkey Solution.</div>
+    <div>Email: <a href="mailto:hello@capitalconnectlk.info">info@rooftopmoney.com</a></div>
+    <div><a class="btn small" href="#">Start Intake</a></div>
+    <div class="caption">© 2025 RooftopMoney. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+// simple progress demo
+document.getElementById('next')?.addEventListener('click', function(e){
+  e.preventDefault();
+  const bar = document.querySelector('.progress > i');
+  bar.style.width = '66%';
+});
+</script>
+
+</body>
+</html>

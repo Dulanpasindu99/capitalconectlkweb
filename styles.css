@@ -1,0 +1,134 @@
+
+/* RooftopMoney – single-file CSS (no frameworks) */
+:root{
+  --brand:#0A1B2B;
+  --brand-2:#0A1B2B;
+  --ink:#0f172a;
+  --muted:#6b7280;
+  --bg:#f7f9fb;
+  --card:#ffffff;
+  --ring: rgba(44,122,103,.25);
+  --accent:#3fa0ff;
+  --cta:#0A1B2B;
+  --cta-ink:#ffffff;
+  --radius:16px;
+  --shadow:0 10px 24px rgba(15,23,42,.07), 0 3px 8px rgba(15,23,42,.05);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.container{width:min(1120px, 100% - 2rem);margin-inline:auto}
+
+/* header */
+.header{
+  position:sticky; top:0; z-index:50;
+  background:#fff; border-bottom:1px solid #e5e7eb;
+  backdrop-filter:saturate(180%) blur(8px);
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between; padding:.9rem 0; gap:1rem}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.2px}
+.logo-mark{width:28px;height:28px;border-radius:8px;background:
+  conic-gradient(from 200deg at 50% 50%, var(--brand) 0 50%, var(--accent) 0 100%);
+  box-shadow:inset 0 0 0 2px #fff, 0 4px 14px rgba(44,122,103,.35);
+}
+.btn{display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--cta);color:var(--cta-ink);border-radius:999px;padding:.7rem 1rem;
+  font-weight:600; box-shadow:0 8px 24px rgba(44,122,103,.28); border:1px solid #205e51;
+}
+.btn.outline{background:#fff;color:var(--cta);border:1.5px solid var(--cta)}
+.btn.small{padding:.5rem .85rem;font-size:.9rem}
+nav{display:flex;gap:1rem;align-items:center}
+nav a{color:var(--muted);font-weight:600}
+nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:3.5rem 0 2rem}
+.hero .grid{display:grid;grid-template-columns: 1.1fr .9fr; gap:2.2rem; align-items:center}
+.badge{display:inline-flex;align-items:center;gap:.5rem;background:#eaf6f2;border:1px solid #d7efe7;color:#1f6e5e;padding:.3rem .6rem;border-radius:999px;font-weight:700;font-size:.8rem}
+h1{font-size:clamp(1.6rem, 2.2vw + 1rem, 2.3rem);line-height:1.15;margin:.6rem 0 1rem}
+.lead{color:var(--muted);max-width:55ch}
+.media{
+  aspect-ratio: 16 / 10; border-radius:20px; overflow:hidden; position:relative;
+  background:linear-gradient(120deg, #e9eef2, #dde5ea);
+  box-shadow:var(--shadow);
+}
+.media::before,
+.media::after{
+  content:""; position:absolute; inset:0; background:
+    linear-gradient( to right, rgba(44,122,103,.14), transparent 30% 70%, rgba(44,122,103,.14));
+  mix-blend-mode:multiply; pointer-events:none;
+}
+.play{
+  position:absolute; inset:auto; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:62px;height:62px;border-radius:50%; background:#fff; display:grid; place-items:center;
+  box-shadow:0 10px 24px rgba(0,0,0,.15);
+}
+.play svg{transform:translateX(2px)}
+.actions{display:flex;gap:.8rem; flex-wrap:wrap; margin-top:1.2rem}
+
+/* revenue share */
+.section{padding:3.5rem 0}
+.center{text-align:center}
+h2{font-size:clamp(1.2rem, 1.3vw + .9rem, 1.6rem); margin:0 0 .75rem}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.4rem}
+.card{background:var(--card);border:1px solid #e6eaee;border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.meter{height:6px;background:#e9edf0;border-radius:999px;position:relative;margin:.8rem 0 1rem}
+.meter .dot{width:14px;height:14px;border-radius:50%;background:var(--brand);position:absolute;top:50%;transform:translate(-50%,-50%);left:33%}
+.model{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.model .tile{background:#f4f8f7;border:1px dashed #cfe1da;border-radius:12px;padding:.8rem}
+.tile h3{margin:.1rem 0 .4rem;font-size:1rem}
+.tile p{color:var(--muted);font-size:.9rem;margin:0}
+
+/* banner */
+.banner{border-radius:24px; overflow:hidden; position:relative; background:#0b2230; color:#fff}
+.banner::before{content:""; position:absolute; inset:0;
+  background:url('screencapture-rooftopmoney-2025-09-29-02_31_37.png') center/cover no-repeat;
+  opacity:.25;
+}
+.banner-inner{position:relative;padding:2.8rem}
+.banner h3{font-size:1.4rem;margin:.2rem 0 1rem}
+
+/* problems */
+.problems{display:grid;grid-template-columns:repeat(4,1fr); gap:1rem}
+.pi{display:grid;gap:.4rem}
+.pi .ic{width:36px;height:36px;border-radius:10px;background:#eaf6f2;display:grid;place-items:center;border:1px solid #d7efe7}
+.pi h4{margin:.2rem 0 .2rem;font-size:1rem}
+.pi p{margin:0;color:var(--muted);font-size:.92rem}
+
+/* process */
+.steps{display:grid;gap:.8rem}
+.step{display:flex;gap:.9rem;align-items:flex-start;background:#f7faf9;border:1px solid #e0efe8;border-radius:14px;padding:.8rem}
+.bullet{width:28px;height:28px;border-radius:50%;background:#dff2ec;display:grid;place-items:center;color:#1f6e5e;font-weight:800}
+
+/* about */
+.about{display:grid;grid-template-columns:1fr 1fr; gap:1.2rem}
+.about .grid-2{display:grid;grid-template-columns:1fr 1fr; gap:1rem}
+.feature{display:grid;gap:.3rem}
+.feature .shot{aspect-ratio:4/3;border-radius:12px;background:linear-gradient(135deg,#e9eef2,#dbe6ec);border:1px solid #e5eaf0;box-shadow:var(--shadow)}
+
+/* footer */
+.footer{background:#0b2230;color:#d1dae2;margin-top:2rem}
+.footer a{color:#9ee7c3}
+.footer .inner{padding:2rem 0;display:grid;gap:.8rem}
+
+/* utilities */
+.grid-2{display:grid;grid-template-columns:1.2fr .8fr; gap:1.2rem}
+.mt-1{margin-top:.5rem}.mt-2{margin-top:1rem}.mt-3{margin-top:1.5rem}
+.caption{color:var(--muted);font-size:.9rem}
+hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
+
+/* responsive */
+@media (max-width: 920px){
+  .hero .grid, .model, .about{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr}
+  .problems{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .banner-inner{padding:2rem}
+}
+@media (max-width: 520px){
+  nav{display:none}
+  .problems{grid-template-columns:1fr}
+  .header-inner{padding:.7rem 0}
+}
