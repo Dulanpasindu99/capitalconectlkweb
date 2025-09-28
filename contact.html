@@ -6,24 +6,24 @@
 <title>Start Intake — Rooftop Money</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-.form-wrap{background:#fff;border:1px solid #e6eaee;border-radius:16px;box-shadow:var(--shadow)}
-.form-head{padding:1.2rem;border-bottom:1px solid #eef2f5;display:flex;align-items:center;justify-content:space-between}
-.form-body{padding:1.2rem}
-label{display:block;font-size:.82rem;color:#6b7280;margin:0 0 .35rem}
-.input{width:100%;padding:.75rem .85rem;border:1.5px solid #e3e7eb;border-radius:10px;background:#fbfdff;outline:none}
-.input:focus{border-color:#b9d9cf; box-shadow:0 0 0 4px var(--ring)}
-.grid{display:grid;grid-template-columns:1fr 1fr; gap:1rem}
-.progress{height:8px;background:#ecf1f4;border-radius:999px;overflow:hidden}
-.progress > i{display:block;height:100%;width:33%;background:linear-gradient(90deg, var(--brand), var(--accent))}
-.bar-note{font-size:.75rem;color:#6b7280;margin:.4rem 0 .6rem}
-.helper-strip{border-top:1px solid #ecf1f4;background:#fcfdfd;color:#8a929a;padding:.5rem 1rem;border-bottom-left-radius:16px;border-bottom-right-radius:16px}
-.helper-strip a{color:#2c7a67}
-.small-btn{background:#eaf6f2;border:1px solid #d7efe7;color:#1f6e5e;border-radius:999px;padding:.55rem .8rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem}
-.row{display:grid;gap:.6rem}
-select.input{appearance:none;background:#fbfdff}
-.phone{display:grid;grid-template-columns: 1fr 2fr; gap:.6rem}
+.form-wrap{border-radius:24px;border:1px solid var(--glass-border);background:linear-gradient(145deg,rgba(255,255,255,.8),rgba(255,255,255,.62));backdrop-filter:blur(28px);box-shadow:0 32px 60px rgba(15,23,42,.18);overflow:hidden}
+.form-head{padding:1.4rem 1.6rem;border-bottom:1px solid rgba(15,23,42,.08);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(244,247,255,.92),rgba(235,240,255,.75))}
+.form-body{padding:1.6rem}
+label{display:block;font-size:.85rem;color:rgba(15,23,42,.6);margin:0 0 .35rem;font-weight:500;letter-spacing:.01em}
+.input{width:100%;padding:.85rem 1rem;border:1.5px solid rgba(10,132,255,.15);border-radius:14px;background:rgba(255,255,255,.75);outline:none;transition:border-color .25s ease, box-shadow .25s ease, background .25s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 12px 24px rgba(15,23,42,.08)}
+.input:focus{border-color:rgba(10,132,255,.45); box-shadow:0 0 0 3px rgba(10,132,255,.18), inset 0 1px 0 rgba(255,255,255,.8);background:rgba(255,255,255,.9)}
+.grid{display:grid;grid-template-columns:1fr 1fr; gap:1.2rem}
+.progress{height:10px;background:rgba(10,20,60,.08);border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.progress > i{display:block;height:100%;width:33%;background:linear-gradient(90deg,#0A84FF,#5AC8FA);box-shadow:0 10px 18px rgba(10,132,255,.24)}
+.bar-note{font-size:.78rem;color:rgba(15,23,42,.55);margin:.4rem 0 .7rem;font-weight:500;letter-spacing:.03em;text-transform:uppercase}
+.helper-strip{border-top:1px solid rgba(255,255,255,.55);background:linear-gradient(135deg,rgba(255,255,255,.68),rgba(244,247,255,.8));color:rgba(15,23,42,.6);padding:.75rem 1.4rem;border-bottom-left-radius:24px;border-bottom-right-radius:24px;display:flex;align-items:center;gap:.6rem}
+.helper-strip a{color:#0a84ff;font-weight:600}
+.small-btn{background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.6);color:#0a84ff;border-radius:999px;padding:.55rem 1rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 10px 18px rgba(10,132,255,.12)}
+.row{display:grid;gap:.65rem}
+select.input{appearance:none;background:rgba(255,255,255,.82);background-image:linear-gradient(45deg,transparent 50%,rgba(10,132,255,.6) 50%),linear-gradient(135deg,rgba(10,132,255,.6) 50%,transparent 50%);background-position:calc(100% - 18px) calc(50% - 3px),calc(100% - 12px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:2.4rem}
+.phone{display:grid;grid-template-columns: 1fr 2fr; gap:.65rem}
 .cta-row{display:flex;justify-content:flex-end}
-.deck{background:#f6faf9;border:1px solid #e0efe8;border-radius:12px;padding:.8rem;display:flex;align-items:center;gap:.55rem}
+.deck{background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.58));border:1px solid rgba(255,255,255,.55);border-radius:18px;padding:1rem 1.2rem;display:flex;align-items:center;gap:.65rem;backdrop-filter:blur(22px);box-shadow:0 18px 28px rgba(15,23,42,.12)}
 </style>
 </head>
 <body>
