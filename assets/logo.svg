@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Capital Connect LK logo</title>
+  <desc id="desc">Stylized C logo with three radiant bars on a midnight blue gradient background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071b2d" />
+      <stop offset="100%" stop-color="#0f2e46" />
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)" rx="42" ry="42" />
+  <g fill="url(#bar)">
+    <rect x="112" y="176" width="148" height="46" rx="23" transform="rotate(-35 186 199)" />
+    <rect x="104" y="240" width="160" height="48" rx="24" />
+    <rect x="112" y="290" width="148" height="46" rx="23" transform="rotate(35 186 313)" />
+  </g>
+  <circle cx="304" cy="256" r="156" fill="none" stroke="#f5f7fa" stroke-width="96" stroke-linecap="round" stroke-dasharray="730 360" transform="rotate(-18 304 256)" />
+  <text x="360" y="152" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="42" fill="#f5f7fa" letter-spacing="6">LK</text>
+</svg>
