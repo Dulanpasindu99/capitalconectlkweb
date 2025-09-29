@@ -58,6 +58,7 @@
     toggleIcon.style.removeProperty('--wa-toggle-icon-bg');
     if(toggleCopy){
       toggleCopy.style.pointerEvents = '';
+      toggleCopy.style.display = '';
     }
   }
 
@@ -157,7 +158,9 @@
     toggle.style.setProperty('--wa-toggle-copy-shift', copyShift);
     toggle.style.setProperty('--wa-toggle-copy-visibility', progress > 0.98 ? 'hidden' : 'visible');
     if(toggleCopy){
-      toggleCopy.style.pointerEvents = progress > 0.98 ? 'none' : '';
+      const shouldHideCopy = progress > 0.98;
+      toggleCopy.style.pointerEvents = shouldHideCopy ? 'none' : '';
+      toggleCopy.style.display = shouldHideCopy ? 'none' : '';
     }
     widget.classList.toggle('is-scrolled', progress > 0.02);
   }
