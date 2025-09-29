@@ -195,6 +195,7 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 .whatsapp-widget.is-open .whatsapp-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 .whatsapp-panel__header{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.1rem 0 1.1rem}
 .whatsapp-panel__avatar{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 12px 20px rgba(10,20,30,.22)}
+.whatsapp-panel__avatar svg{width:26px;height:26px;display:block}
 .whatsapp-panel__title{display:grid;gap:.25rem}
 .whatsapp-panel__title strong{font-size:1rem;letter-spacing:-.01em}
 .whatsapp-panel__status{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(244,255,248,.78);font-weight:600}
