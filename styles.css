@@ -171,6 +171,7 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .footer{background:rgba(10,20,60,.9);color:#e1e7ff;margin-top:3rem;position:relative;overflow:hidden}
 .footer::before{content:"";position:absolute;inset:-60% -10% 40% -30%;background:radial-gradient(circle at 10% 40%,rgba(90,200,250,.4),transparent 60%);opacity:.7;filter:blur(32px)}
 .footer a{color:#64d2ff}
+.footer .btn{color:var(--cta-ink)}
 .footer .inner{padding:2.6rem 0;display:grid;gap:.9rem;position:relative}
 .footer .caption{color:#fff}
 .footer .logo{color:#e1e7ff}
