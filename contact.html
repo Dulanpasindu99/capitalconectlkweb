@@ -116,6 +116,36 @@ select.input{appearance:none;background:rgba(255,255,255,.82);background-image:l
   </div>
 </footer>
 
+<div class="whatsapp-widget" data-wa-link="https://wa.me/94723652618">
+  <div class="whatsapp-panel" id="whatsapp-panel" hidden aria-hidden="true">
+    <div class="whatsapp-panel__header">
+      <div class="whatsapp-panel__avatar" aria-hidden="true">💬</div>
+      <div class="whatsapp-panel__title">
+        <strong>Capital Connect LK</strong>
+        <span class="whatsapp-panel__status">We're online</span>
+      </div>
+      <button class="whatsapp-close" type="button" aria-label="Close WhatsApp chat">✕</button>
+    </div>
+    <div class="whatsapp-panel__body">
+      <div class="whatsapp-panel__message">Questions about the intake form or investor introductions? Tap below to open a WhatsApp chat and we’ll assist you shortly.</div>
+      <a class="whatsapp-panel__cta" href="https://wa.me/94723652618" target="_blank" rel="noopener">Open WhatsApp</a>
+      <p class="whatsapp-panel__note">You’ll be taken to WhatsApp in a new tab. Email works too: <a href="mailto:hello@capitalconnectlk.info">hello@capitalconnectlk.info</a>.</p>
+    </div>
+  </div>
+  <button class="whatsapp-toggle" type="button" aria-expanded="false" aria-controls="whatsapp-panel">
+    <span class="toggle-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.06 2 11.06c0 2.86 1.34 5.42 3.44 7.2L4 22l4.03-1.34c1.21.33 2.49.5 3.97.5 5.52 0 10-4.06 10-9.06S17.52 2 12 2z" fill="#25D366"/>
+        <path d="M17.24 14.19c-.29.82-1.41 1.51-2.29 1.7-.61.13-1.39.23-4.05-.87-3.4-1.38-5.59-4.77-5.76-4.99-.17-.22-1.37-1.81-1.37-3.45 0-1.64.87-2.45 1.18-2.79.31-.34.68-.43.9-.43.22 0 .45.01.64.01.21 0 .49-.08.77.59.29.7.99 2.42 1.08 2.6.09.18.15.4.03.62-.12.22-.18.36-.36.55-.17.18-.36.4-.52.54-.17.14-.35.3-.15.59.2.29.9 1.48 1.94 2.39 1.34 1.19 2.46 1.57 2.76 1.75.29.18.46.15.63-.09.17-.23.73-.85.93-1.14.2-.29.4-.24.67-.14.27.09 1.71.81 2 .96.29.15.48.22.55.34.07.13.07.75-.22 1.57z" fill="#fff"/>
+      </svg>
+    </span>
+    <span class="toggle-copy">
+      <strong>Chat with us</strong>
+      <span>WhatsApp</span>
+    </span>
+  </button>
+</div>
+
 <script>
 // simple progress demo
 document.getElementById('next')?.addEventListener('click', function(e){
@@ -123,6 +153,76 @@ document.getElementById('next')?.addEventListener('click', function(e){
   const bar = document.querySelector('.progress > i');
   bar.style.width = '66%';
 });
+</script>
+
+<script>
+(function(){
+  const widget = document.querySelector('.whatsapp-widget');
+  if(!widget) return;
+  const toggle = widget.querySelector('.whatsapp-toggle');
+  const panel = widget.querySelector('.whatsapp-panel');
+  const closeBtn = widget.querySelector('.whatsapp-close');
+  const cta = widget.querySelector('.whatsapp-panel__cta');
+  const waLink = widget.getAttribute('data-wa-link');
+
+  if(waLink && cta){
+    cta.setAttribute('href', waLink);
+  }
+
+  const openPanel = () => {
+    if(panel.hasAttribute('data-closing')){
+      panel.removeAttribute('data-closing');
+    }
+    panel.hidden = false;
+    panel.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => {
+      widget.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+    });
+  };
+
+  const closePanel = () => {
+    widget.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.setAttribute('data-closing', 'true');
+    setTimeout(() => {
+      if(panel.getAttribute('data-closing') === 'true'){
+        panel.hidden = true;
+        panel.removeAttribute('data-closing');
+      }
+    }, 220);
+  };
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    if(expanded){
+      closePanel();
+    } else {
+      openPanel();
+    }
+  });
+
+  closeBtn.addEventListener('click', closePanel);
+
+  if(cta){
+    cta.addEventListener('click', () => {
+      closePanel();
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if(!widget.contains(event.target) && toggle.getAttribute('aria-expanded') === 'true'){
+      closePanel();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if(event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true'){
+      closePanel();
+    }
+  });
+})();
 </script>
 
 </body>
