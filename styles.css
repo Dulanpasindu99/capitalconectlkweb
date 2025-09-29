@@ -250,12 +250,13 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .footer::before{content:"";position:absolute;inset:-60% -10% 40% -30%;background:radial-gradient(circle at 10% 40%,rgba(90,200,250,.4),transparent 60%);opacity:.7;filter:blur(32px)}
 .footer a{color:#64d2ff}
 .footer .btn{color:var(--cta-ink)}
-.footer .inner{padding:2.6rem 0;display:grid;gap:.9rem;position:relative}
+.footer .inner{padding:2.6rem 0;display:grid;gap:.9rem;position:relative;padding-right:4.5rem}
 .footer .caption{color:#fff}
 .footer .logo{color:#e1e7ff}
 .footer-social{
-  justify-self:end;
-  align-self:end;
+  position:absolute;
+  top:2rem;
+  right:0;
   display:inline-flex;
   align-items:center;
   justify-content:center;
