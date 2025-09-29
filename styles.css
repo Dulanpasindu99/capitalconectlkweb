@@ -50,7 +50,7 @@ img{max-width:100%;display:block}
 }
 .header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem}
 .logo{display:flex;align-items:center;gap:.65rem;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
-.logo-placeholder{width:32px;height:32px;border-radius:10px;background:#000;box-shadow:0 10px 22px rgba(15,23,42,.24);display:block}
+.logo-image{width:36px;height:36px;border-radius:10px;box-shadow:0 10px 22px rgba(15,23,42,.24);display:block;object-fit:contain;background:#fff;padding:4px}
 .site-title{font-size:1.05rem}
 .btn{display:inline-flex;align-items:center;gap:.5rem;
   background:var(--cta);color:var(--cta-ink);border-radius:999px;padding:.72rem 1.2rem;
