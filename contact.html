@@ -55,42 +55,49 @@ select.input{appearance:none;background:rgba(255,255,255,.82);background-image:l
         <a class="btn small" href="#">Start Intake</a>
       </div>
       <div class="form-body">
-        <h2 style="margin-top:.2rem">Let’s Start Your Intake</h2>
-        <div class="grid mt-2">
-          <div class="row">
-            <label for="first">First Name*</label>
-            <input class="input" id="first" placeholder="First name">
+        <form action="https://formsubmit.co/capitalconnectlk@gmail.com" method="POST" class="row" id="intake-form">
+          <input type="hidden" name="_subject" value="New Capital Connect LK intake submission">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+
+          <h2 style="margin-top:.2rem">Let’s Start Your Intake</h2>
+          <div class="grid mt-2">
+            <div class="row">
+              <label for="first">First Name*</label>
+              <input class="input" id="first" name="first_name" placeholder="First name" required>
+            </div>
+            <div class="row">
+              <label for="last">Last Name*</label>
+              <input class="input" id="last" name="last_name" placeholder="Last name" required>
+            </div>
           </div>
-          <div class="row">
-            <label for="last">Last Name*</label>
-            <input class="input" id="last" placeholder="Last name">
+
+          <div class="row mt-2">
+            <label for="email">Email*</label>
+            <input class="input" id="email" name="email" type="email" placeholder="you@company.com" required>
           </div>
-        </div>
 
-        <div class="row mt-2">
-          <label for="email">Email*</label>
-          <input class="input" id="email" type="email" placeholder="you@company.com">
-        </div>
-
-        <div class="row mt-2">
-          <label for="phone">Phone Number</label>
-          <div class="phone">
-            <select class="input" id="cc">
-              <option value="LK">LK +94</option>
-              <option value="US">US +1</option>
-              <option value="UK">UK +44</option>
-              <option value="IN">IN +91</option>
-            </select>
-            <input class="input" id="phone" placeholder="+94 7X XXX XXXX">
+          <div class="row mt-2">
+            <label for="phone">Phone Number</label>
+            <div class="phone">
+              <select class="input" id="cc" name="country_code">
+                <option value="LK +94">LK +94</option>
+                <option value="US +1">US +1</option>
+                <option value="UK +44">UK +44</option>
+                <option value="IN +91">IN +91</option>
+              </select>
+              <input class="input" id="phone" name="phone_number" placeholder="7X XXX XXXX" pattern="[0-9 +()-]{6,}" aria-describedby="phone-help">
+            </div>
+            <small id="phone-help" class="caption">Optional. Include only digits and separators.</small>
           </div>
-        </div>
 
-        <div class="bar-note">33%</div>
-        <div class="progress"><i></i></div>
+          <div class="bar-note">33%</div>
+          <div class="progress"><i></i></div>
 
-        <div class="cta-row mt-2">
-          <button class="btn small" id="next">Next</button>
-        </div>
+          <div class="cta-row mt-2">
+            <button class="btn small" type="submit">Submit</button>
+          </div>
+        </form>
       </div>
       <div class="helper-strip">🧩 <a href="#">Create your own free forms</a> to generate leads from your website.</div>
     </div>
