@@ -132,9 +132,23 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .pi p{margin:0;color:var(--muted);font-size:.95rem}
 
 /* process */
-.steps{display:grid;gap:1rem}
-.step{display:flex;gap:1.1rem;align-items:flex-start;background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.45));border:1px solid rgba(255,255,255,.55);border-radius:18px;padding:1rem 1.2rem;backdrop-filter:blur(22px);box-shadow:0 22px 40px rgba(15,23,42,.12)}
-.bullet{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5AC8FA);display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:0 12px 24px rgba(10,132,255,.28)}
+.process-section{position:relative;padding:5rem 0;background:linear-gradient(160deg,rgba(10,132,255,.08),rgba(255,255,255,0));overflow:hidden}
+.process-section::before,.process-section::after{content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;pointer-events:none}
+.process-section::before{width:420px;height:420px;top:-160px;left:-120px;background:radial-gradient(circle at center,rgba(90,200,250,.55),rgba(90,200,250,0))}
+.process-section::after{width:460px;height:460px;bottom:-200px;right:-140px;background:radial-gradient(circle at center,rgba(10,132,255,.45),rgba(10,132,255,0))}
+.process-wrapper{position:relative;display:grid;gap:2.6rem}
+.process-intro{max-width:620px;margin-inline:auto;text-align:center;display:grid;gap:.8rem}
+.process-intro .caption{margin:0;font-size:1rem}
+.steps{display:grid;gap:1.3rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.step{position:relative;display:flex;gap:1.1rem;align-items:flex-start;padding:1.2rem 1.4rem;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.46));border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(24px);box-shadow:0 26px 46px rgba(15,23,42,.12);overflow:hidden;transition:transform .45s ease, box-shadow .45s ease}
+.step::before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at center,rgba(10,132,255,.55),rgba(255,255,255,0) 65%);background-size:160% 160%;background-position:50% 50%;opacity:0;transition:opacity .45s ease;z-index:0}
+.step::after{content:"";position:absolute;inset:-1px;border-radius:inherit;background:conic-gradient(from 0deg at 50% 50%,rgba(10,132,255,.35),rgba(90,200,250,.1),rgba(10,132,255,.35));opacity:0;filter:blur(28px);transition:opacity .45s ease;z-index:0;transform:rotate(0deg)}
+.step:hover{transform:translateY(-6px);box-shadow:0 38px 68px rgba(10,20,60,.22)}
+.step:hover::before{opacity:.85;animation:stepGlow 2.2s ease-in-out infinite}
+.step:hover::after{opacity:.9;animation:stepSpin 3.4s linear infinite}
+.step > *{position:relative;z-index:1}
+.step strong{font-size:1.02rem}
+.bullet{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5AC8FA);display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:0 16px 30px rgba(10,132,255,.32);flex-shrink:0}
 
 /* about */
 .about{display:grid;grid-template-columns:1.1fr .9fr; gap:1.6rem;align-items:start}
@@ -209,3 +223,5 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 @keyframes glint{0%,100%{box-shadow:0 18px 32px rgba(10,132,255,.16);transform:translateY(0)}50%{box-shadow:0 18px 36px rgba(10,132,255,.28);transform:translateY(-1px)}}
 @keyframes glowDrift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,10px) scale(1.05)}100%{transform:translate(-30px,-20px) scale(.95)}}
 @keyframes floatCard{0%{transform:translateY(0) rotate(0deg)}40%{transform:translateY(-6px) rotate(0.35deg)}70%{transform:translateY(2px) rotate(-0.35deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes stepGlow{0%{background-position:20% 20%}50%{background-position:80% 40%}100%{background-position:50% 80%}}
+@keyframes stepSpin{to{transform:rotate(360deg)}}
