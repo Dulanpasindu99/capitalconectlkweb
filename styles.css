@@ -1,5 +1,7 @@
 
 /* RooftopMoney – single-file CSS (no frameworks) */
+@import url('https://fonts.cdnfonts.com/css/satoshi');
+
 :root{
   --brand:#0A84FF;
   --brand-2:#5AC8FA;
@@ -20,7 +22,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--ink);font:16px/1.55 "SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;font-feature-settings:"liga" 1,"kern" 1;}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55;font-family:"Satoshi",Arial,sans-serif;font-feature-settings:"liga" 1,"kern" 1;}
 html{scroll-behavior:smooth}
 body{position:relative;overflow-x:hidden}
 body::before,body::after{
@@ -180,7 +182,7 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 
 /* whatsapp widget */
-.whatsapp-widget{position:fixed;right:26px;bottom:26px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:.9rem;font-family:"SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif}
+.whatsapp-widget{position:fixed;right:26px;bottom:26px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:.9rem;font-family:"Satoshi",Arial,sans-serif}
 .whatsapp-widget .whatsapp-toggle{border:0;border-radius:999px;padding:.75rem 1.15rem;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;display:flex;align-items:center;gap:.7rem;font-weight:650;letter-spacing:-.01em;box-shadow:0 20px 44px rgba(18,140,126,.28),0 0 0 1px rgba(255,255,255,.3) inset;cursor:pointer;transition:transform .35s ease, box-shadow .35s ease, padding .3s ease, width .3s ease, height .3s ease, border-radius .3s ease, gap .3s ease}
 .whatsapp-widget .whatsapp-toggle:focus-visible{outline:3px solid rgba(37,211,102,.55);outline-offset:3px}
 .whatsapp-widget .whatsapp-toggle:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 28px 58px rgba(18,140,126,.36)}
