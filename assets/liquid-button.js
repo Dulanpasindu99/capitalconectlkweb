@@ -3,8 +3,41 @@
   if (!buttons.length) return;
 
   const PROXIMITY = 180;
+  const VIBRATE_TRIGGER = 0.65;
+  const VIBRATE_RESET = 0.25;
+  const VIBRATE_CLASS = 'vibrate-once';
+
+  const requestButtons = buttons.filter((button) => button.dataset.cta === 'request-call');
+  const requestStates = new WeakMap();
+
+  requestButtons.forEach((button) => {
+    requestStates.set(button, { ready: true, vibrating: false });
+    button.addEventListener('animationend', (event) => {
+      if (event.animationName !== 'buttonVibrate') return;
+      button.classList.remove(VIBRATE_CLASS);
+      const state = requestStates.get(button);
+      if (!state) return;
+      state.vibrating = false;
+    });
+  });
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+  function triggerVibrate(button) {
+    const state = requestStates.get(button);
+    if (!state || state.vibrating || !state.ready) return;
+    state.vibrating = true;
+    state.ready = false;
+    button.classList.add(VIBRATE_CLASS);
+  }
+
+  function resetRequestState(button) {
+    const state = requestStates.get(button);
+    if (!state) return;
+    state.ready = true;
+    state.vibrating = false;
+    button.classList.remove(VIBRATE_CLASS);
+  }
 
   function resetButton(button) {
     button.classList.remove('is-near');
@@ -13,6 +46,7 @@
     button.style.removeProperty('--liquid-x');
     button.style.removeProperty('--liquid-y');
     button.style.removeProperty('--liquid-intensity');
+    resetRequestState(button);
   }
 
   function handlePointerMove(event) {
@@ -41,6 +75,15 @@
       button.style.setProperty('--liquid-y', `${localY}px`);
       button.style.setProperty('--liquid-intensity', proximity.toFixed(3));
       button.classList.add('is-near');
+
+      if (requestStates.has(button)) {
+        const state = requestStates.get(button);
+        if (proximity > VIBRATE_TRIGGER) {
+          triggerVibrate(button);
+        } else if (proximity < VIBRATE_RESET && !state.vibrating) {
+          state.ready = true;
+        }
+      }
     });
   }
 
