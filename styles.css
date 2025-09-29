@@ -137,13 +137,41 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .fee-card .caption{margin-top:.4rem}
 
 /* banner */
-.banner{border-radius:28px; overflow:hidden; position:relative; color:#fff;background:linear-gradient(135deg,rgba(10,20,60,.85),rgba(10,132,255,.8));box-shadow:0 40px 70px rgba(10,20,60,.32);}
+.banner{
+  border-radius:28px;
+  overflow:hidden;
+  position:relative;
+  color:#fff;
+  background:linear-gradient(135deg,rgba(10,20,60,.85),rgba(10,132,255,.8));
+  box-shadow:0 40px 70px rgba(10,20,60,.32);
+  --glow-x:50%;
+  --glow-y:50%;
+  --glow-intensity:0;
+  --glow-translate-x:0px;
+  --glow-translate-y:0px;
+}
 .banner::before{content:""; position:absolute; inset:-40% -20%;
   background:radial-gradient(circle at 25% 25%,rgba(255,255,255,.45),rgba(255,255,255,0) 55%);
   opacity:.6;filter:blur(18px);
   animation:glowDrift 18s ease-in-out infinite;
+  z-index:0;
 }
-.banner-inner{position:relative;padding:3rem}
+.banner::after{
+  content:"";
+  position:absolute;
+  inset:-45%;
+  background:
+    radial-gradient(220px circle at var(--glow-x) var(--glow-y),rgba(90,200,250,.58),rgba(10,20,60,0) 68%),
+    radial-gradient(320px circle at calc(var(--glow-x) + 6%) calc(var(--glow-y) + 8%),rgba(10,132,255,.45),rgba(10,20,60,0) 72%);
+  filter:blur(calc(30px + 70px * var(--glow-intensity)));
+  opacity:calc(var(--glow-intensity) * .92);
+  transform:translate3d(var(--glow-translate-x),var(--glow-translate-y),0) scale(calc(1 + var(--glow-intensity) * .12));
+  transition:opacity .35s ease, filter .35s ease, transform .45s cubic-bezier(.22,.61,.36,1);
+  mix-blend-mode:screen;
+  pointer-events:none;
+  z-index:0;
+}
+.banner-inner{position:relative;padding:3rem;z-index:1}
 .banner h3{font-size:1.5rem;margin:.2rem 0 1rem;font-weight:650}
 
 /* problems */
