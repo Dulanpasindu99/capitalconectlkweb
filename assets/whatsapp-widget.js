@@ -38,7 +38,7 @@
   let frameId = null;
 
   const collapseQuery = window.matchMedia('(max-width: 640px)');
-  let collapseActive = !collapseQuery.matches;
+  let collapseActive = collapseQuery.matches;
 
   function clearProgressStyles(){
     widget.style.removeProperty('--wa-collapse-progress');
@@ -188,7 +188,7 @@
   }
 
   function syncCollapseMode(){
-    collapseActive = !collapseQuery.matches;
+    collapseActive = collapseQuery.matches;
     if(!collapseActive){
       collapseProgress = 0;
       pendingProgress = 0;
