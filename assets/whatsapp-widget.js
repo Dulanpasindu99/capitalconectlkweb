@@ -210,10 +210,83 @@
     collapseQuery.addListener(syncCollapseMode);
   }
 
+  let panelAnimation = null;
+  const supportsWA = typeof panel.animate === 'function';
+
+  function resetPanelOverrides(){
+    panel.style.removeProperty('transform-origin');
+    panel.style.removeProperty('filter');
+    panel.style.removeProperty('pointer-events');
+  }
+
+  function runDockAnimation(mode){
+    if(!supportsWA){
+      return null;
+    }
+    const panelRect = panel.getBoundingClientRect();
+    const toggleRect = toggle.getBoundingClientRect();
+    const panelCenterX = panelRect.left + panelRect.width / 2;
+    const panelCenterY = panelRect.top + panelRect.height / 2;
+    const toggleCenterX = toggleRect.left + toggleRect.width / 2;
+    const toggleCenterY = toggleRect.top + toggleRect.height / 2;
+    const deltaX = toggleCenterX - panelCenterX;
+    const deltaY = toggleCenterY - panelCenterY;
+    const baseScale = Math.max(0.18, Math.min(0.68, toggleRect.width / panelRect.width));
+    const originX = ((toggleCenterX - panelRect.left) / panelRect.width) * 100;
+    const originY = ((toggleCenterY - panelRect.top) / panelRect.height) * 100;
+    panel.style.transformOrigin = `${originX}% ${originY}%`;
+
+    if(mode === 'open'){
+      const keyframes = [
+        {
+          opacity: 0,
+          transform: `translate(${deltaX}px, ${deltaY}px) scale(${baseScale * 0.82})`,
+          filter: 'blur(12px)',
+          easing: 'cubic-bezier(0.36,0,0.66,-0.56)'
+        },
+        {
+          opacity: 1,
+          transform: `translate(${deltaX * 0.18}px, ${deltaY * 0.18}px) scale(1.05)`,
+          filter: 'blur(0px)',
+          easing: 'cubic-bezier(0.15,0.9,0.3,1)',
+          offset: 0.72
+        },
+        {
+          opacity: 1,
+          transform: 'translate(0, 0) scale(1)',
+          filter: 'blur(0px)',
+          easing: 'cubic-bezier(0.2,0.84,0.44,1)'
+        }
+      ];
+      return panel.animate(keyframes, {duration: 520});
+    }
+
+    const keyframes = [
+      {
+        opacity: 1,
+        transform: 'translate(0, 0) scale(1)',
+        filter: 'blur(0px)',
+        easing: 'cubic-bezier(0.2,0.8,0.44,1)'
+      },
+      {
+        opacity: 0,
+        transform: `translate(${deltaX}px, ${deltaY}px) scale(${baseScale * 0.78})`,
+        filter: 'blur(14px)',
+        easing: 'cubic-bezier(0.33,0,0.67,1)'
+      }
+    ];
+    return panel.animate(keyframes, {duration: 420});
+  }
+
   function openPanel(){
     if(panel.hasAttribute('data-closing')){
       panel.removeAttribute('data-closing');
     }
+    if(panelAnimation){
+      panelAnimation.cancel();
+      panelAnimation = null;
+    }
+    widget.classList.remove('is-closing');
     panel.hidden = false;
     panel.setAttribute('aria-hidden', 'false');
     requestAnimationFrame(() => {
@@ -221,21 +294,64 @@
       toggle.setAttribute('aria-expanded', 'true');
       scheduleProgress(0);
       updateScrollState();
+      resetPanelOverrides();
+      panelAnimation = runDockAnimation('open');
+      if(panelAnimation){
+        panelAnimation.addEventListener('finish', () => {
+          resetPanelOverrides();
+          panelAnimation = null;
+        }, {once: true});
+        panelAnimation.addEventListener('cancel', () => {
+          resetPanelOverrides();
+          panelAnimation = null;
+        }, {once: true});
+      }
     });
   }
 
   function closePanel(){
-    widget.classList.remove('is-open');
+    if(toggle.getAttribute('aria-expanded') === 'false' && panel.hidden){
+      return;
+    }
     toggle.setAttribute('aria-expanded', 'false');
     panel.setAttribute('aria-hidden', 'true');
     panel.setAttribute('data-closing', 'true');
+    panel.style.pointerEvents = 'none';
+    widget.classList.add('is-closing');
     updateScrollState();
-    setTimeout(() => {
-      if(panel.getAttribute('data-closing') === 'true'){
+    if(panelAnimation){
+      panelAnimation.cancel();
+      panelAnimation = null;
+    }
+    const animation = runDockAnimation('close');
+    if(animation){
+      panelAnimation = animation;
+      animation.addEventListener('finish', () => {
+        widget.classList.remove('is-open');
+        widget.classList.remove('is-closing');
         panel.hidden = true;
         panel.removeAttribute('data-closing');
-      }
-    }, 220);
+        resetPanelOverrides();
+        panelAnimation = null;
+        updateScrollState();
+      }, {once: true});
+      animation.addEventListener('cancel', () => {
+        widget.classList.remove('is-closing');
+        resetPanelOverrides();
+        panelAnimation = null;
+      }, {once: true});
+    } else {
+      widget.classList.remove('is-open');
+      widget.classList.remove('is-closing');
+      updateScrollState();
+      setTimeout(() => {
+        if(panel.getAttribute('data-closing') === 'true'){
+          panel.hidden = true;
+          panel.removeAttribute('data-closing');
+          resetPanelOverrides();
+        }
+      }, 220);
+    }
   }
 
   toggle.addEventListener('click', () => {
