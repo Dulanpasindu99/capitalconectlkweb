@@ -288,8 +288,9 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 .whatsapp-widget .toggle-copy{display:grid;gap:.1rem;text-align:left;opacity:var(--wa-toggle-copy-opacity,1);transform:translateX(var(--wa-toggle-copy-shift,0));visibility:var(--wa-toggle-copy-visibility,visible);transition:opacity .2s ease}
 .whatsapp-widget .toggle-copy strong{font-size:.98rem;line-height:1;font-weight:650;transition:opacity .25s ease}
 .whatsapp-widget .toggle-copy span{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.76);font-weight:600;transition:opacity .25s ease}
-.whatsapp-panel{width:min(320px,calc(100vw - 2.4rem));border-radius:22px;background:linear-gradient(150deg,rgba(18,140,126,.96),rgba(37,211,102,.88));color:#f4fff8;box-shadow:0 32px 60px rgba(18,140,126,.35);border:1px solid rgba(255,255,255,.35);overflow:hidden;transform-origin:bottom right;opacity:0;transform:translateY(12px) scale(.96);pointer-events:none;transition:opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1)}
+.whatsapp-panel{width:min(320px,calc(100vw - 2.4rem));border-radius:22px;background:linear-gradient(150deg,rgba(18,140,126,.96),rgba(37,211,102,.88));color:#f4fff8;box-shadow:0 32px 60px rgba(18,140,126,.35);border:1px solid rgba(255,255,255,.35);overflow:hidden;transform-origin:bottom right;opacity:0;transform:translateY(12px) scale(.96);pointer-events:none;transition:opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1);will-change:transform,opacity,filter}
 .whatsapp-widget.is-open .whatsapp-panel{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.whatsapp-widget.is-closing .whatsapp-panel{pointer-events:none}
 .whatsapp-panel__header{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.1rem 0 1.1rem}
 .whatsapp-panel__avatar{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 12px 20px rgba(10,20,30,.22)}
 .whatsapp-panel__avatar svg{width:26px;height:26px;display:block}
