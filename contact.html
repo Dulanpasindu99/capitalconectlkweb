@@ -17,6 +17,7 @@
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
+<script src="assets/nav-scroll.js" defer></script>
 <script src="assets/scroll-reveal.js" defer></script>
 <script src="assets/hero-typewriter.js" defer></script>
 <script src="assets/include.js" defer></script>
@@ -25,6 +26,10 @@
 .form-wrap::before,.form-wrap::after{content:"";position:absolute;inset:auto;border-radius:999px;filter:blur(40px);opacity:.65;pointer-events:none;mix-blend-mode:screen}
 .form-wrap::before{width:320px;height:320px;top:-160px;right:-60px;background:radial-gradient(circle at center,rgba(90,200,250,.55),rgba(90,200,250,0) 68%);animation:floatBlob 12s ease-in-out infinite alternate}
 .form-wrap::after{width:260px;height:260px;bottom:-140px;left:-50px;background:radial-gradient(circle at center,rgba(10,132,255,.65),rgba(10,132,255,0) 70%);animation:floatBlob 14s ease-in-out infinite alternate-reverse}
+/* Clears the sticky .header on a jump-to-fragment (native, or via
+   assets/nav-scroll.js) instead of landing underneath it — see the
+   matching #fees/#problems/#process/#about rule in styles.css. */
+#intake-form{scroll-margin-top:130px}
 .form-head{position:relative;padding:1.6rem 1.8rem;border-bottom:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(250,252,255,.92),rgba(232,241,255,.68));backdrop-filter:blur(28px)}
 .form-head::after{content:"";position:absolute;inset:auto 24px -16px 24px;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(10,132,255,.25),rgba(255,255,255,.15));opacity:.7}
 .form-body{position:relative;padding:2rem 2.2rem;display:grid;gap:1.4rem}
