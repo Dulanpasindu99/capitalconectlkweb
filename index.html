@@ -1,6 +1,20 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Content Security Policy: restricts where scripts/styles/fonts/images/
+     connections may load from to this origin plus the few vetted third
+     parties this site actually uses (Google Fonts, Google Analytics, and
+     the FormSubmit form backend). 'unsafe-inline' is required for the
+     inline gtag snippet, the JSON-LD blocks, and the site's inline styles;
+     it's an accepted trade-off on a static site with no user-generated
+     content (so no XSS injection surface to exploit). frame-ancestors,
+     X-Frame-Options, X-Content-Type-Options, HSTS and Permissions-Policy
+     can only be set as real HTTP response headers (a <meta> CSP ignores
+     frame-ancestors) — see README.md "Security" for the host config to add. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://formsubmit.co; img-src 'self' data: https://*.googletagmanager.com https://*.google-analytics.com; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VC7M22Y5DS"></script>
 <script>
@@ -10,8 +24,6 @@
 
   gtag('config', 'G-VC7M22Y5DS');
 </script>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capital Connect LK - Curated Investor Introductions for Sri Lankan Founders | No Upfront Fees</title>
 <meta name="description" content="Facilitating curated investor introductions for Sri Lankan founders with success-only fees and no upfront costs.">
 <link rel="canonical" href="https://capitalconnectlk.info/">
