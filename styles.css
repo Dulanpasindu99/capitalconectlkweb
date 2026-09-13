@@ -215,86 +215,85 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .fees-grid.is-revealed .fee-card:nth-child(3) h3{transition-delay:180ms}
 .fees-grid.is-revealed .fee-card h3{filter:blur(0)}
 
-/* Fee-card hover interaction (pure CSS, no JS): a brand-color "liquid" fill
-   rises from the bottom of the card inside .fee-card-clip (which also
-   clips it to the card's rounded corners). A duplicate, light-colored copy
-   of the card's text (.fee-card-face--over, aria-hidden) is revealed with
-   a clip-path that animates on the exact same duration/easing as the
-   liquid's height, so the text visually "changes color" right where the
-   liquid has covered it, in lockstep, without any JS measuring/syncing.
-   LIQUID_DURATION is .7s below — once the fill finishes, the content
-   blurs and a "Request a Call" badge (.fee-card-cta, wrapping a normal
-   .btn so it keeps the liquid-button.js proximity effect) fades in on
-   top, centered: transition-delay on the hover-in rules is set to match
-   LIQUID_DURATION so nothing blurs/appears before the fill completes.
-   Leaving hover reverses everything with no delay (see the plain,
-   non-hover rules below, which intentionally omit the delay) so it snaps
-   back the instant the cursor leaves. Keep the two .7s values in sync if
-   LIQUID_DURATION changes. */
+/* Fee-card hover interaction (pure CSS, no JS): a dark-navy/white "liquid"
+   fill rises from the bottom of the card inside .fee-card-clip (which also
+   clips it to the card's rounded corners) over LIQUID_DURATION (8s) below.
+   It's deliberately not a flat wipe: .fee-card-clip::before layers two
+   offset, horizontally-drifting radial-gradient "bumps" (the ripple) over
+   a dark-navy vertical gradient (the body), plus a soft white glow riding
+   the current top edge via a negative-offset box-shadow — which, since
+   it's a shadow of the element's OWN top edge, automatically stays right
+   at the liquid's surface as its height grows, no extra element or JS
+   needed to keep a "wave" in sync with the rise.
+   The rise itself runs as a one-shot @keyframes animation (not a plain
+   transition) so the ripple's own looping animation can run alongside it
+   independently on the same property's background-position. Leaving hover
+   removes that animation; the base rule's plain `transition:height 1s ease`
+   then takes over and smoothly retracts from whatever height the
+   animation had reached — a deliberate two-mechanism combo (animation for
+   the 8s rise, a quicker 1s transition for the retract), which is why the
+   retract duration below is 1s rather than 8s: leaving is meant to feel
+   snappy, not mirror the slow fill.
+   A duplicate, light-colored copy of the card's text
+   (.fee-card-face--over, aria-hidden) is revealed with a clip-path
+   transition on the same 8s LIQUID_DURATION/easing as the rise, so the
+   text visually "changes color" right where the liquid has (on average)
+   covered it. Once the fill finishes, the content blurs and a
+   "Request a Call" badge (.fee-card-cta, wrapping a normal .btn so it
+   keeps the liquid-button.js proximity effect) fades in on top, centered:
+   transition-delay on the hover-in rules matches LIQUID_DURATION so
+   nothing blurs/appears before the fill completes. Leaving hover reverses
+   those with no delay (see the plain, non-hover rules below, which
+   intentionally omit the delay) so they snap back the instant the cursor
+   leaves. Keep the 8s values in sync if LIQUID_DURATION changes. */
 .fee-card-clip{position:relative;z-index:0;border-radius:inherit;overflow:hidden}
-.fee-card-clip::before{content:"";position:absolute;inset:auto 0 0 0;height:0%;background:linear-gradient(180deg,var(--brand-2),var(--brand));transition:height .7s cubic-bezier(.4,0,.2,1)}
-.fee-card:hover .fee-card-clip::before{height:100%}
+.fee-card-clip::before{
+  content:"";
+  position:absolute;inset:auto 0 0 0;height:0%;
+  background-image:
+    radial-gradient(ellipse 46px 16px at 18px 2px, rgba(255,255,255,.55) 55%, transparent 62%),
+    radial-gradient(ellipse 46px 16px at 62px 6px, rgba(255,255,255,.3) 55%, transparent 62%),
+    linear-gradient(180deg,#13327a 0%,#0b1c48 45%,#050b1e 100%);
+  background-repeat:repeat-x,repeat-x,no-repeat;
+  background-size:84px 30px,84px 30px,100% 100%;
+  background-position:0 0,0 0,0 0;
+  box-shadow:0 -10px 24px rgba(255,255,255,.35);
+  transition:height 1s ease;
+}
+.fee-card:hover .fee-card-clip::before{
+  animation:feeLiquidRise 8s cubic-bezier(.45,0,.2,1) forwards, feeLiquidRipple 2.4s linear infinite;
+}
+@keyframes feeLiquidRise{
+  from{height:0%}
+  to{height:100%}
+}
+@keyframes feeLiquidRipple{
+  from{background-position:0 0,0 0,0 0}
+  to{background-position:84px 0,84px 0,0 0}
+}
 .fee-card-face{position:relative;z-index:1;display:grid;gap:.55rem;padding:1.8rem;filter:blur(0);opacity:1;transition:filter .4s ease, opacity .35s ease}
-.fee-card:hover .fee-card-face{filter:blur(6px);opacity:.35;transition:filter .4s ease .7s, opacity .35s ease .7s}
-.fee-card-face--over{position:absolute;inset:0;z-index:1;color:#fff;pointer-events:none;clip-path:inset(100% 0 0 0);transition:clip-path .7s cubic-bezier(.4,0,.2,1), filter .4s ease, opacity .35s ease}
+.fee-card:hover .fee-card-face{filter:blur(6px);opacity:.35;transition:filter .4s ease 8s, opacity .35s ease 8s}
+.fee-card-face--over{position:absolute;inset:0;z-index:1;color:#fff;pointer-events:none;clip-path:inset(100% 0 0 0);transition:clip-path 1s ease, filter .4s ease, opacity .35s ease}
 .fee-card-face--over .fee-label{background:rgba(255,255,255,.22);color:#fff}
 .fee-card-face--over .fee-rate{color:#fff}
 .fee-card-face--over .caption{color:rgba(255,255,255,.85)}
-.fee-card:hover .fee-card-face--over{clip-path:inset(0 0 0 0);filter:blur(6px);opacity:.35;transition:clip-path .7s cubic-bezier(.4,0,.2,1), filter .4s ease .7s, opacity .35s ease .7s}
+.fee-card:hover .fee-card-face--over{clip-path:inset(0 0 0 0);filter:blur(6px);opacity:.35;transition:clip-path 8s cubic-bezier(.45,0,.2,1), filter .4s ease 8s, opacity .35s ease 8s}
 .fee-card-cta{position:absolute;inset:0;z-index:2;display:grid;place-items:center;opacity:0;pointer-events:none;transform:translateY(8px) scale(.94);transition:opacity .35s ease, transform .35s ease, pointer-events 0s linear .35s}
-.fee-card:hover .fee-card-cta{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);transition:opacity .4s ease .7s, transform .4s ease .7s, pointer-events 0s linear .7s}
+.fee-card:hover .fee-card-cta{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);transition:opacity .4s ease 8s, transform .4s ease 8s, pointer-events 0s linear 8s}
 
 /* banner */
-/* Banner "loading" reveal: on first load the banner sits as a flat dark
-   gray placeholder; the moment it scrolls into view (the same one-time
-   .is-revealed toggle [data-reveal] already uses, via
-   assets/scroll-reveal.js — no extra JS needed), a bright blue/white glow
-   bar sweeps across it right-to-left (.banner-sweep, a real element so it
-   can run its own independent keyframe animation rather than sharing the
-   ::before/::after pointer-glow pseudo-elements below), while the flat
-   gray background transitions into the finished blue gradient underneath
-   it. <noscript> in index.html forces the finished gradient immediately so
-   it never stays gray forever without JS. */
 .banner{
   border-radius:28px;
   overflow:hidden;
   position:relative;
   color:#fff;
-  background:#2b2f38;
-  transition:background 1s ease;
+  background:linear-gradient(135deg,rgba(10,20,60,.85),rgba(10,132,255,.8));
   box-shadow:0 40px 70px rgba(10,20,60,.32);
   --glow-x:50%;
   --glow-y:50%;
   --glow-intensity:0;
   --glow-translate-x:0px;
   --glow-translate-y:0px;
-}
-.banner.is-revealed{
-  background:linear-gradient(135deg,rgba(10,20,60,.85),rgba(10,132,255,.8));
-}
-.banner-sweep{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
-  opacity:0;
-  transform:translateX(120%);
-  background:linear-gradient(90deg,
-    rgba(90,200,250,0) 0%,
-    rgba(90,200,250,.85) 42%,
-    rgba(255,255,255,.95) 50%,
-    rgba(10,132,255,.85) 58%,
-    rgba(10,132,255,0) 100%);
-  filter:blur(6px);
-}
-.banner.is-revealed .banner-sweep{
-  animation:bannerSweep 1.1s cubic-bezier(.4,0,.2,1) .15s forwards;
-}
-@keyframes bannerSweep{
-  0%{opacity:0;transform:translateX(120%)}
-  12%{opacity:1}
-  82%{opacity:1}
-  100%{opacity:0;transform:translateX(-120%)}
 }
 .banner::before{content:""; position:absolute; inset:-40% -20%;
   background:radial-gradient(circle at 25% 25%,rgba(255,255,255,.45),rgba(255,255,255,0) 55%);
@@ -317,7 +316,7 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
   pointer-events:none;
   z-index:0;
 }
-.banner-inner{position:relative;padding:3rem;z-index:2}
+.banner-inner{position:relative;padding:3rem;z-index:1}
 .banner h3{font-size:1.5rem;margin:.2rem 0 1rem;font-weight:650}
 
 /* problems */
