@@ -235,11 +235,12 @@ in `styles.css` under "scroll reveal" (the JS only toggles a class):
 
 - `data-reveal` — the element itself fades/slides in as a whole. Used on
   section intros/single blocks: `.fees-head`, the CTA `.banner`,
-  `.process-intro`, `.about-side`, and `contact.html`'s "learn more" card.
+  `.process-intro`, `.about-main`, `.get-started-text`, and
+  `contact.html`'s "learn more" card.
 - `data-reveal-group` — the element's **direct children** fade/slide in
   individually, staggered via `nth-child` transition-delays (currently
   defined for up to 6 children). Used on card/grid rows: `.fees-grid`,
-  `.problems`, `.steps`, `.about-grid`.
+  `.problems`, `.steps`, `.about-grid`, `.get-started-list`.
 
 **Don't nest a `data-reveal`/`data-reveal-group` element inside another one.**
 Both are hidden (`opacity:0`) until revealed, so a `data-reveal-group` INSIDE
@@ -267,21 +268,46 @@ approach (see "Header shape + auto-hide-on-scroll" above): the motion here
 is a small, one-time fade/8–26px slide, not parallax/zoom/rotation, so it
 always plays.
 
-### About section (feature grid + sidebar)
-`.about-feature` (the 6-card grid) and `.about-side` (the sticky "Ready to
-begin?" card) got a polish pass: larger/more prominent `.feature-icon`
-badges (60px, up from 58px) that also scale up slightly on card hover
-(`.about-feature:hover .feature-icon`), a touch more card padding and
-tighter caption line-height, and a subtle border-color shift on hover
-matching `.fee-card`'s pattern. `.pill` (the "Success-only Fees" etc. tags)
-got the same small hover lift as other pill/badge elements site-wide.
+### About section (benefits grid) vs. #process (steps) — deliberately different
+`#about` is the benefits section ("why us"), and it's built to look and
+behave differently from `#process`'s `.steps`, on purpose — the two
+shouldn't converge again:
 
-`.about-side ul` (the checklist) no longer uses default browser bullets —
-`list-style:none` plus a `::before`/`::after` pair per `<li>` draws a small
-blue-gradient circle with a white checkmark, matching the brand gradient
-used elsewhere (`.bullet`, `.btn`). This is pure CSS; no HTML change was
-needed to add it, and none is needed to keep using it — just write normal
-`<li>` items.
+| | `#process` `.steps` | `#about` `.about-grid` |
+|---|---|---|
+| Grid | fixed single row, 5 equal columns (3/2/1 at breakpoints) | 3 columns × 2 rows (2 then 1 at breakpoints) |
+| Card layout | vertical, centered (icon over title over text) | horizontal (icon beside title+text) |
+| Icon badge | circular | rounded-square (`.feature-icon{border-radius:16px}`) |
+| Hover | per-card lift + radial glow, independently | same lift/glow, **plus** a group "spotlight": hovering one card dims and slightly shrinks/desaturates every other card in the grid |
+
+The spotlight is CSS-only, no JS: `.about-grid:has(.about-feature:hover)
+.about-feature:not(:hover){opacity:.6;transform:scale(.97);
+filter:saturate(.65)}`. `:has()` has solid support in current evergreen
+browsers; anywhere it's unsupported the rule simply doesn't match, so those
+visitors just get the plain individual hover — a harmless fallback, not a
+broken one. If you touch either section's layout, keep the two visibly
+distinct rather than re-converging on one shared "icon card grid" pattern.
+
+`.about-main` (the heading/intro/badges) is no longer a sidebar's sibling —
+see below — so it's just a `max-width:760px` block of its own above the
+grid, left-aligned (matching `.fees-head`/the `#problems` intro, not
+`.process-intro`'s centered treatment).
+
+### "Ready to begin?" is its own section, not a sidebar
+It used to be `<aside class="about-side card">`, sitting next to
+`.about-grid` in a 2-column `.about` grid. It's now `#get-started`, a
+**separate `<section>`** placed after `#about` (before the footer) —
+`.get-started` (a `.card`) with two children: `.get-started-text`
+(eyebrow + heading + the "Request a Call" button) and `.get-started-list`
+(the 4-item checklist, laid out as its own 2×2 grid, 1 column below
+`≤520px`). They're **siblings**, not nested — keep it that way; see the
+"don't nest `data-reveal`/`data-reveal-group`" rule in "Scroll reveal"
+above.
+
+The checklist's checkmark-bullet styling (`::before`/`::after` on each
+`<li>`, a small blue-gradient circle with a white check) moved with it:
+it's now under `.get-started-list li`, not `.about-side ul li`. Pure CSS,
+no HTML needed beyond plain `<li>` items.
 
 ### WhatsApp icon
 The WhatsApp toggle button and panel avatar use a real image
@@ -537,6 +563,14 @@ it onto the "Open WhatsApp" CTA).
   now-dead icon-background/shadow tracking code in
   `assets/whatsapp-widget.js`'s scroll-collapse logic (see "WhatsApp icon"
   above).
+- Pulled "Ready to begin?" out of the About section entirely — it was a
+  sidebar squeezed next to the benefits grid; it's now its own `#get-started`
+  section before the footer. Redesigned `.about-grid` (3×2, rounded-square
+  icons, hover "spotlight" that dims sibling cards) to look and behave
+  distinctly from `#process`'s `.steps`, per explicit request that the two
+  "benefit" vs. "process" sections shouldn't look like the same pattern
+  twice (see "About section (benefits grid) vs. #process (steps)" and
+  "'Ready to begin?' is its own section" above).
 
 ## Git / project notes
 
