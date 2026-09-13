@@ -25,7 +25,10 @@ capitalconectlkweb/
 ├── styles.css               # ALL shared styling (single file, no framework)
 ├── sitemap.xml              # SEO sitemap (lists the two real pages)
 ├── robots.txt               # Allows all crawlers, points to sitemap.xml
-├── logo.png                 # Logo (used everywhere; also og:image + JSON-LD logo)
+├── logo.png                 # On-page logo, transparent (header/footer/form)
+├── og-image.png             # Social-share + JSON-LD logo image, solid dark bg
+├── README.md                # Public-facing project overview + deploy/security
+├── .gitignore               # Keeps agent/editor tooling + OS junk out of the repo
 ├── partials/                # Shared components — injected via data-include (SEE BELOW)
 │   ├── header.html            # Site header + nav + "Book a Call" CTA
 │   ├── footer.html            # Site footer (rounded card) + copyright + social
@@ -791,7 +794,10 @@ it onto the "Open WhatsApp" CTA).
 6. When you add a real page, add it to `sitemap.xml` and give it the eight
    `<script defer>` tags (see load order above) plus the three `data-include`
    placeholders and the `<noscript>` scroll-reveal fallback (see "Scroll
-   reveal" below).
+   reveal" below). Also copy the `<head>` opener verbatim: `<meta charset>`
+   and `<meta viewport>` first, then the identical CSP `<meta>` and
+   `referrer` meta, then the gtag snippet — the CSP must match the other
+   pages and must precede any resource-loading tag (see "Security" below).
 7. Effect scripts must stay idempotent and expose their `CCLK.init*` function;
    don't make them auto-run — `include.js` owns initialisation timing.
 
@@ -844,6 +850,73 @@ change:
   factor) — this is a static site with no blog/CMS today, so that would
   be a bigger structural change than a copy edit, worth a separate
   conversation if it's wanted.
+
+## Security
+
+This is a **static site that stores no credentials and has no server-side
+code and no user-generated content that gets rendered back** — so its
+attack surface is genuinely small, and there is *nothing secret in the
+repo to hide* (the Google Analytics measurement ID and the FormSubmit
+contact email are public by design — that's how those services work; they
+are not secrets). All source that ships is, by nature of the web, publicly
+inspectable — you can't "hide" client-side HTML/CSS/JS, and this codebase
+is written to read cleanly when someone does inspect it. What the security
+work here actually does is (a) keep repo-only/tooling files out of the
+shipped site, and (b) constrain what the pages are allowed to load and do.
+
+**Content-Security-Policy (in both pages' `<head>`, via `<meta
+http-equiv>`).** Restricts scripts/styles/fonts/images/connections to
+`'self'` plus the exact third parties the site uses: Google Fonts
+(`fonts.googleapis.com` for the stylesheet, `fonts.gstatic.com` for the
+font files), Google Analytics (`*.googletagmanager.com` +
+`*.google-analytics.com`), and `formsubmit.co` (as `form-action` only —
+the form submits via a real POST, not fetch). Also sets `object-src
+'none'`, `base-uri 'self'`, and `upgrade-insecure-requests`. **The two
+pages must keep an identical CSP** — if you add a new external resource
+(another font host, a new analytics/pixel, an embedded map/video), you
+must add its origin to the matching directive **in both pages** or it will
+be silently blocked. Test any CSP change in a real browser (a violation
+logs a `securitypolicyviolation`/console error and the resource just
+doesn't load — easy to miss). `'unsafe-inline'` is present for
+`script-src` and `style-src` and is a **deliberate, accepted trade-off**:
+the inline gtag snippet, the JSON-LD blocks, and the site's inline
+`<style>`/`style=` need it, and a static site with no rendered
+user-generated content has essentially no XSS injection vector for it to
+protect against anyway; the CSP's real value here is origin-allowlisting
+and `form-action`/`base-uri`/`object-src` lockdown, all of which still
+hold with `'unsafe-inline'`.
+
+**Head ordering matters for the CSP.** `<meta charset>` and `<meta
+viewport>` come first, then the CSP `<meta>`, then everything that loads a
+resource (starting with the gtag script). A `<meta>` CSP only governs what
+comes *after* it in source order, so it must precede the gtag tag — keep
+that order if you touch the `<head>`.
+
+**Other in-page measures:** `<meta name="referrer"
+content="strict-origin-when-cross-origin">` on both pages; every outbound
+link carries `rel="noopener noreferrer"` (the `noopener` half is the
+security-relevant one — it stops the opened tab from touching
+`window.opener`; add it to any new `target="_blank"` link).
+
+**What a `<meta>` CSP *can't* set — must be real HTTP response headers at
+the host.** `frame-ancestors` (clickjacking; the meta CSP deliberately
+omits it because browsers ignore it there and would log a warning),
+`X-Frame-Options`, `X-Content-Type-Options: nosniff`,
+`Strict-Transport-Security` (HSTS), and `Permissions-Policy` **only work
+as response headers**, which a static-file `<meta>` tag cannot emit.
+`README.md`'s "Security" section has the recommended values plus
+copy-paste config for Netlify/Cloudflare Pages (`_headers`) and Apache
+(`.htaccess`) — this is the highest-value remaining hardening and needs
+whoever controls the host to apply it; it can't be done from this repo's
+files alone. **Do not** add these as `<meta http-equiv>` tags — several of
+them are ignored as meta and it reads as cargo-culting.
+
+**Deployment hygiene:** repo-only files (`README.md`, `CLAUDE.md`,
+`.gitignore`, dotfiles) aren't meant to be web-served. If the host allows
+path exclusions, don't serve `*.md` or dotfiles publicly. `.gitignore`
+already keeps agent/editor tooling (`.agents/`, `skills-lock.json`,
+`DESIGN.md`), the superseded root `whatsapp-icon.svg`, and OS/editor junk
+out of the repo entirely.
 
 ## Known tradeoffs / things to be aware of
 
@@ -1064,6 +1137,23 @@ change:
   Also removed the polling-based `waitForScrollSettle()` (no longer
   needed now that the scroll animation's own Promise resolves at the
   exact right moment). See "Nav-anchor scrolling" above.
+- Security + repo-hygiene pass (see the new "Security" section above).
+  Added a Content-Security-Policy `<meta>` (identical on both pages)
+  allowlisting only `'self'` + Google Fonts + Google Analytics +
+  FormSubmit, plus `object-src 'none'`, `base-uri 'self'`,
+  `upgrade-insecure-requests`, a `referrer` policy meta, and upgraded
+  outbound links to `rel="noopener noreferrer"`. Reordered both `<head>`s
+  so `charset`/`viewport` come first and the CSP precedes the gtag script
+  (a meta CSP only governs what follows it). Verified in a real browser
+  that GA, Google Fonts, and the form all still work under the CSP and
+  that disallowed origins are actually blocked (no console violations on
+  normal load). Added `README.md` (public project overview + deploy notes
+  + the real HTTP security headers to set at the host, which a meta CSP
+  can't) and `.gitignore` (keeps `.agents/`, `skills-lock.json`,
+  `DESIGN.md`, the superseded root `whatsapp-icon.svg`, and OS/editor junk
+  out of the repo; keeps `.claude/launch.json` tracked). Audited the
+  tracked source: no secrets, no debug/`console.log`, no TODOs, no
+  insecure `http://` references.
 
 ## Git / project notes
 

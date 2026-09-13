@@ -1,0 +1,28 @@
+# Agent / editor tooling artifacts — not part of the shipped site.
+.agents/
+skills-lock.json
+DESIGN.md
+
+# Claude Code workspace files, except the shared dev-server config
+# (.claude/launch.json is intentionally tracked so anyone can preview locally).
+.claude/*
+!.claude/launch.json
+
+# The original, superseded WhatsApp mark (dark fill). The recolored copy the
+# site actually uses lives at assets/whatsapp-icon.svg — keep this stray
+# working file out of the repo. See CLAUDE.md "WhatsApp icon".
+/whatsapp-icon.svg
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs / local env — none used today, but guard against accidental commits.
+*.log
+.env
+.env.*
