@@ -57,16 +57,31 @@ background-image:linear-gradient(45deg,transparent 50%,rgba(10,132,255,.7) 50%),
 background-position:calc(100% - 22px) calc(50% - 2px),calc(100% - 14px) calc(50% - 2px);
 background-size:7px 7px,7px 7px}
 .phone{display:grid;grid-template-columns:1fr 2fr;gap:.8rem}
-.cta-row{display:flex;justify-content:flex-end}
-.cta-row .btn{padding:.7rem 1.6rem;font-size:.96rem}
-.deck{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.52));border:1px solid rgba(255,255,255,.6);border-radius:22px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:.75rem;backdrop-filter:blur(24px);box-shadow:0 22px 38px rgba(15,23,42,.14);overflow:hidden}
+.form-footer-row{display:flex;align-items:center;gap:1.6rem}
+.form-footer-row .btn{padding:.7rem 1.6rem;font-size:.96rem;flex-shrink:0}
+.progress-group{flex:1;display:grid;gap:.5rem}
+.progress-group .bar-note{margin:0}
+.deck{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.52));border:1px solid rgba(255,255,255,.6);border-radius:22px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:.75rem;backdrop-filter:blur(24px);box-shadow:0 22px 38px rgba(15,23,42,.14);overflow:hidden;flex-shrink:0}
 .deck::before{content:"";position:absolute;inset:-40% 20% 20% -30%;background:radial-gradient(circle at center,rgba(90,200,250,.45),transparent 60%);opacity:.75;filter:blur(28px);animation:floatBlob 18s ease-in-out infinite}
 .deck span{font-size:1.3rem}
+.learn-more{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.learn-more-text h2{margin:.1rem 0 0;font-size:clamp(1.15rem, .8vw + 1rem, 1.5rem)}
 
 @keyframes floatBlob{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(12px,-16px,0) scale(1.1)}100%{transform:translate3d(-10px,18px,0) scale(.95)}}
 @keyframes progressShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}
 }
 @keyframes liquidLight{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* The form card's own field rows (name, then email+phone) stack to one
+   column below this — the email+phone row in particular has a nested
+   country-code/number grid inside it, so it needs more room than the
+   site's usual 520px "final mobile" cutoff before that gets cramped. */
+@media (max-width: 680px){
+  .grid{grid-template-columns:1fr}
+  .phone{grid-template-columns:1fr}
+  .form-footer-row{flex-wrap:wrap}
+  .form-footer-row .btn{width:100%}
+}
 
 /* Keep the form card's own logo/title/CTA row on one line on narrow
    screens too (same "scale down, never wrap" treatment as the shared
@@ -86,14 +101,14 @@ background-size:7px 7px,7px 7px}
 <div data-include="header"></div>
 
 <main class="section">
-  <div class="container" style="max-width:760px">
+  <div class="container">
     <div class="form-wrap">
       <div class="form-head">
         <div class="logo">
           <img src="logo.png" alt="Capital Connect LK logo" class="logo-image">
           <span class="site-title">Capital Connect LK</span>
         </div>
-        <a class="btn small" href="#" data-cta="request-call">Request a Call</a>
+        <a class="btn small" href="#intake-form" data-cta="request-call">Request a Call</a>
       </div>
       <div class="form-body">
         <form action="https://formsubmit.co/capitalconnectlk@gmail.com" method="POST" class="row" id="intake-form">
@@ -113,30 +128,32 @@ background-size:7px 7px,7px 7px}
             </div>
           </div>
 
-          <div class="row mt-2">
-            <label for="email">Email*</label>
-            <input class="input" id="email" name="email" type="email" placeholder="you@company.com" required data-progress-field>
-          </div>
-
-          <div class="row mt-2">
-            <label for="phone">Phone Number</label>
-            <div class="phone">
-              <select class="input" id="cc" name="country_code" data-progress-field>
-                <option value="" disabled selected>Select country code</option>
-                <option value="LK +94">LK +94</option>
-                <option value="US +1">US +1</option>
-                <option value="UK +44">UK +44</option>
-                <option value="IN +91">IN +91</option>
-              </select>
-              <input class="input" id="phone" name="phone_number" placeholder="7X XXX XXXX" pattern="[0-9 +()-]{6,}" aria-describedby="phone-help" data-progress-field>
+          <div class="grid mt-2">
+            <div class="row">
+              <label for="email">Email*</label>
+              <input class="input" id="email" name="email" type="email" placeholder="you@company.com" required data-progress-field>
             </div>
-            <small id="phone-help" class="caption">Optional. Include only digits and separators.</small>
+            <div class="row">
+              <label for="phone">Phone Number</label>
+              <div class="phone">
+                <select class="input" id="cc" name="country_code" data-progress-field>
+                  <option value="" disabled selected>Select country code</option>
+                  <option value="LK +94">LK +94</option>
+                  <option value="US +1">US +1</option>
+                  <option value="UK +44">UK +44</option>
+                  <option value="IN +91">IN +91</option>
+                </select>
+                <input class="input" id="phone" name="phone_number" placeholder="7X XXX XXXX" pattern="[0-9 +()-]{6,}" aria-describedby="phone-help" data-progress-field>
+              </div>
+              <small id="phone-help" class="caption">Optional. Include only digits and separators.</small>
+            </div>
           </div>
 
-          <div class="bar-note" id="form-progress-label">0%</div>
-          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="form-progress-label"><i id="form-progress-bar"></i></div>
-
-          <div class="cta-row mt-2">
+          <div class="form-footer-row mt-2">
+            <div class="progress-group">
+              <div class="bar-note" id="form-progress-label">0%</div>
+              <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="form-progress-label"><i id="form-progress-bar"></i></div>
+            </div>
             <button class="btn small" type="submit">Submit</button>
           </div>
         </form>
@@ -144,9 +161,11 @@ background-size:7px 7px,7px 7px}
       <div class="helper-strip">🧩We’re ready for you. Expect a response ASAP.</div>
     </div>
 
-    <div class="card mt-3" data-reveal>
-      <div class="caption">learn more</div>
-      <h2 style="margin:.1rem 0 .6rem">Capital Connect LK: Vetted investor intros,</br>No upfront fees, just real opportunities.</h2>
+    <div class="card mt-3 learn-more" data-reveal>
+      <div class="learn-more-text">
+        <div class="caption">learn more</div>
+        <h2>Capital Connect LK: Vetted investor intros,<br>No upfront fees, just real opportunities.</h2>
+      </div>
       <div class="deck"><span>🟢</span> <strong>View Our Deck</strong></div>
     </div>
   </div>

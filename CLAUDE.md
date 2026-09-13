@@ -517,7 +517,38 @@ fields set the email subject/template and disable captcha (`_captcha=false`).
 The progress bar is driven by the inline script at the bottom of `contact.html`:
 it counts filled `[data-progress-field]` inputs and updates the `--progress`
 width. **If you add/remove form fields, mark them with `data-progress-field`**
-to keep the progress meter accurate.
+to keep the progress meter accurate — the script selects by that attribute,
+not by position, so fields can be freely rearranged (as they were below)
+without touching the tracking script itself.
+
+**Layout — two 2-column rows, not a single stacked column:**
+`.grid` (defined in `contact.html`'s own inline `<style>`, not `styles.css`)
+groups First/Last Name into one row and Email/Phone into a second — reusing
+the same class for both keeps the rhythm consistent. Below `680px` (a
+breakpoint local to this page, chosen because the Phone field has its own
+nested country-code/number sub-grid that needs more room than the site's
+usual `520px` cutoff before it gets cramped) `.grid` collapses to one column,
+and `.phone` (country code + number) also collapses to one column at the
+same breakpoint — without that second rule the country-code `<select>`
+gets so narrow its placeholder text truncates (this actually happened,
+verified, and fixed by adding `.phone{grid-template-columns:1fr}` inside the
+same media query).
+
+The progress bar and the Submit button share one row (`.form-footer-row` >
+`.progress-group` + `.btn`) instead of being stacked — the bar/label take
+the available width, the button sits at the end, wrapping to stack below on
+narrow screens.
+
+**Container width matches the rest of the site.** The page's `<div
+class="container">` no longer carries an inline `style="max-width:760px"` —
+it now uses the standard `.container` width (`min(1120px, 100% - 2.4rem)`),
+the same as every other section/the footer. Both the form card and the
+"learn more" card (`.learn-more` — a flex row, text on the left, the
+`.deck` "View Our Deck" pill on the right, wrapping to stack on narrow
+screens) size to that same width, so they line up edge-to-edge with the
+header pill and the footer card above and below them. Don't reintroduce a
+narrower `max-width` here without a reason — it was a deliberate width
+mismatch this page had before, not an intentional design choice.
 
 ### WhatsApp widget
 Target number is set in ONE place: the `data-wa-link="https://wa.me/94723652618"`
@@ -669,6 +700,17 @@ it onto the "Open WhatsApp" CTA).
   `styles.css`) — an on-load entrance animation, distinct from the
   scroll-triggered `data-reveal`/`data-reveal-group` system, since the hero
   is always above the fold (see "Hero heading 'typewriter' reveal" above).
+- Cleaned up the intake form page: removed `contact.html`'s narrower inline
+  `max-width:760px`, so its form/"learn more" cards now match the same
+  container width as the footer and every other section (see "Intake form"
+  above). Reorganized the form into two 2-column rows (Name, then Email +
+  Phone) and combined the progress bar with the Submit button into one row,
+  rather than a single narrow stacked column, since the box is now wider.
+  Redesigned the "learn more" card as a text+CTA flex row instead of
+  stretching sparsely. Fixed a truncating country-code dropdown at narrow
+  widths (added a `.phone` stacking rule alongside the new `.grid` one), a
+  dead `href="#"` on the form-card's "Request a Call" (now `#intake-form`),
+  and an invalid `</br>` (now `<br>`).
 
 ## Git / project notes
 
