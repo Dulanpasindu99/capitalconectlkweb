@@ -80,6 +80,13 @@ img{max-width:100%;display:block}
   pointer-events:none;
 }
 .header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem}
+/* Nav-anchor targets: clear the sticky .header on a jump-to-fragment
+   (native, or via assets/nav-scroll.js) instead of landing underneath it.
+   Plain-CSS fallback — assets/nav-scroll.js does the fuller centering/
+   header-visible-guarantee version, but this alone keeps things correct if
+   JS never runs. Keep in sync with these 4 section ids; add new nav-anchor
+   sections here too. */
+#fees, #problems, #process, #about{scroll-margin-top:130px}
 .logo{display:flex;align-items:center;gap:.65rem;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
 .logo-image{width:36px;height:36px;display:block;object-fit:contain}
 .site-title{font-size:1.05rem}

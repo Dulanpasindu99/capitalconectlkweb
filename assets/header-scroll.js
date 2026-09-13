@@ -16,6 +16,16 @@
  *
  * Exposes window.CCLK.initHeaderScroll(); assets/include.js calls it once,
  * after the shared header partial (partials/header.html) has been injected.
+ * Also exposes two small hooks assets/nav-scroll.js uses so a deliberate
+ * nav-link click doesn't leave the header hidden after the resulting
+ * (potentially long) programmatic scroll:
+ *   - CCLK.revealHeader() — force the header visible right now.
+ *   - CCLK.setHeaderAutoHideSuspended(bool) — while true, scroll events are
+ *     ignored for hide/show purposes (a long smooth-scroll animation fires
+ *     many scroll events with large deltas, which would otherwise trigger
+ *     the normal auto-hide logic mid-navigation). Turning it back off
+ *     resyncs `lastY` to the current position first, so the tail end of
+ *     the just-finished scroll isn't misread as a fresh gesture.
  *
  * NOTE: the transition always plays — it is not dropped for
  * prefers-reduced-motion. This is a deliberate call for this specific
@@ -28,10 +38,38 @@
 (function () {
   const NS = (window.CCLK = window.CCLK || {});
 
+  let header = null;
+  let hidden = false;
+  let downScrollCount = 0;
+  let lastY = 0;
+  let suspended = false;
+
+  function setHidden(next) {
+    if (!header || next === hidden) return;
+    hidden = next;
+    header.classList.toggle('is-header-hidden', hidden);
+  }
+
+  NS.revealHeader = function revealHeader() {
+    downScrollCount = 0;
+    setHidden(false);
+  };
+
+  NS.setHeaderAutoHideSuspended = function setHeaderAutoHideSuspended(next) {
+    suspended = !!next;
+    if (!suspended) {
+      // Resuming: treat the current position as a fresh baseline so the
+      // last leg of the scroll that just finished isn't counted as a new
+      // gesture in either direction.
+      lastY = Math.max(0, window.scrollY);
+      downScrollCount = 0;
+    }
+  };
+
   NS.initHeaderScroll = function initHeaderScroll() {
     if (NS._headerScrollDone) return;
 
-    const header = document.querySelector('.header');
+    header = document.querySelector('.header');
     if (!header) return;
     NS._headerScrollDone = true;
 
@@ -44,19 +82,13 @@
     // header starts hiding (the first HIDE_AFTER_SCROLLS - 1 are ignored).
     const HIDE_AFTER_SCROLLS = 3;
 
-    let lastY = window.scrollY;
-    let hidden = false;
-    let downScrollCount = 0;
+    lastY = window.scrollY;
     let ticking = false;
-
-    function setHidden(next) {
-      if (next === hidden) return;
-      hidden = next;
-      header.classList.toggle('is-header-hidden', hidden);
-    }
 
     function update() {
       ticking = false;
+      if (suspended) return;
+
       const currentY = Math.max(0, window.scrollY);
       const delta = currentY - lastY;
       lastY = currentY;

@@ -34,6 +34,7 @@ capitalconectlkweb/
 │   ├── liquid-button.js       # Pointer-proximity "liquid"/tilt effect for .btn
 │   ├── liquid-banner.js       # Pointer-follow glow effect for the .banner CTA block
 │   ├── header-scroll.js       # Header slide-hide-on-scroll behaviour
+│   ├── nav-scroll.js          # Header-aware, centered scroll for section anchors + Home
 │   ├── scroll-reveal.js       # Below-the-fold scroll-in reveal animation
 │   ├── hero-typewriter.js     # Hero heading word-by-word blur-in reveal
 │   ├── whatsapp-widget.js     # WhatsApp widget behaviour (open/close + mobile collapse)
@@ -72,12 +73,16 @@ shared `window.CCLK` namespace:
 | `assets/liquid-banner.js` | `CCLK.initLiquidBanner()` | `.banner` (no-op if absent) |
 | `assets/whatsapp-widget.js` | `CCLK.initWhatsApp()` | `.whatsapp-widget` |
 | `assets/header-scroll.js` | `CCLK.initHeaderScroll()` | `.header` |
+| `assets/nav-scroll.js` | `CCLK.initNavScroll()` | every same-page `<a href="#...">` |
 | `assets/scroll-reveal.js` | `CCLK.initScrollReveal()` | every `[data-reveal]`/`[data-reveal-group]` |
 | `assets/hero-typewriter.js` | `CCLK.initHeroTypewriter()` | every `[data-typewriter]` |
 
-`assets/include.js` calls all six (guarded, once) after partials are injected,
+`assets/include.js` calls all seven (guarded, once) after partials are injected,
 then dispatches a `components:loaded` event on `document`. Each init is
 idempotent (guarded by a `_*Done` flag) so calling twice is safe.
+`initNavScroll` must run after `initHeaderScroll` (it calls two functions
+`header-scroll.js` exposes — see "Header shape + auto-hide-on-scroll" below)
+— keep it positioned after in both the init array and the script load order.
 
 Load order in each page's `<head>` (all `defer`, order matters — include.js
 last):
@@ -87,6 +92,7 @@ last):
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
+<script src="assets/nav-scroll.js" defer></script>
 <script src="assets/scroll-reveal.js" defer></script>
 <script src="assets/hero-typewriter.js" defer></script>
 <script src="assets/include.js" defer></script>
@@ -166,6 +172,24 @@ whoever owns the site — don't silently reintroduce a reduced-motion
 carve-out that mutes the animation; it will very likely just reproduce this
 same "I can't feel it" feedback loop.
 
+**Public hooks for other scripts.** `assets/header-scroll.js` also exposes
+two small functions (module-scoped `header` reference lifted out of
+`initHeaderScroll` so these work independently of it having already run,
+as long as it's run *before* they're actually invoked):
+- `CCLK.revealHeader()` — forces the header visible right now, resetting
+  the grace counter.
+- `CCLK.setHeaderAutoHideSuspended(bool)` — while `true`, scroll events are
+  ignored for hide/show purposes entirely. Turning it back off resyncs the
+  internal `lastY` to the current scroll position, so the tail end of
+  whatever just happened isn't misread as a fresh gesture.
+
+`assets/nav-scroll.js` (below) is the one thing that calls these — a long
+programmatic smooth-scroll fires plenty of scroll events with large deltas,
+which would otherwise trip the normal auto-hide logic mid-navigation and
+leave the header hidden right when you've just used it to go somewhere.
+Don't add a third caller without checking `nav-scroll.js` first — the two
+were built together and assume they're the only ones managing this.
+
 ### Logo treatment
 The logo renders as a plain `<img class="logo-image">` — no background box,
 padding, border-radius, or shadow — directly before the "Capital Connect LK"
@@ -228,6 +252,67 @@ scales slightly on hover (`.step:hover .step-icon`). If you add a 6th step
 (or remove one), the `nth-child` stagger delays for `[data-reveal-group]`
 in the "scroll reveal" rules below only go up to 6 — extend them if you add
 more child items to any staggered group.
+
+### Nav-anchor scrolling ("Home" + section links)
+The nav (`partials/header.html`) has 5 items: **Home** (`href="/"`, marked
+`data-nav-home`), then Fees/Problems/How It Works/About (`href="/#fees"` etc.
+— root-relative, so they resolve identically from `contact.html` too, per
+the root-relative-link convention below). Home was added because there
+wasn't a way back to the top of the page from the nav itself.
+
+Clicking any of these (or the hero's `href="#process"` "How It Works"
+button, or `contact.html`'s `href="#intake-form"` "Request a Call" — any
+same-page link to an existing element id) is handled by
+`assets/nav-scroll.js` (`CCLK.initNavScroll()`), **not** the browser's
+native jump-to-fragment. Two problems with the native jump specifically
+motivated this:
+1. It lands the section flush with the very top of the viewport — right
+   where the sticky `.header` sits — hiding the section's own heading
+   underneath it.
+2. On a fresh load at a URL like `/#fees`, the native jump fires **before**
+   `assets/include.js`'s `fetch()` for the header/footer partials resolves,
+   so it positions against a DOM that doesn't have the header in it yet;
+   the header/footer then inject afterward and shift everything, leaving
+   the page looking scrolled to the wrong spot. **This is what made a
+   bookmarked/shared `#fees` URL look broken** — not a bug in the section
+   itself, a timing conflict between the partials system and the browser's
+   own fragment-jump.
+
+Instead, `assets/nav-scroll.js` computes a scroll position that clears the
+sticky header by at least a fixed gap (`HEADER_GAP`, 24px) and **truly
+centers** the section in the space below the header when the whole section
+fits there (equal space above and below it — verified via
+`getBoundingClientRect()`, not just eyeballed); for a section taller than
+that space, it just clears the header by the gap, since nothing can center
+something bigger than the screen. It does this for both link clicks *and*
+whatever `location.hash` is already in the URL on page load
+(`correctInitialHash()`), which is what actually fixes point 2 above. The
+URL hash still updates via `history.pushState` (not a real navigation), so
+links stay shareable/bookmarkable. Home, when already on the home page,
+scrolls to the very top and resets the URL to a clean `/`; from
+`contact.html` it's left to navigate normally (a different page, so
+`isCurrentPage()` returns false and the click isn't intercepted at all).
+
+The header is kept visible for the whole trip via the two hooks above —
+without that, a long scroll (e.g. Home → About, scrolling most of the page)
+would trigger `header-scroll.js`'s own auto-hide mid-animation, and you'd
+arrive at the section with the nav you just used now hidden.
+
+**Any link matching (same page + hash pointing at a real element id) is
+intercepted, not just the header nav** — `initNavScroll` attaches to every
+`a[href]` on the page and only calls `preventDefault()` for matches;
+everything else (external links, `mailto:`, cross-page links, `Book a
+Call` → `/contact.html`) falls through untouched. If you add a new
+same-page anchor link, it gets this behavior automatically — no per-link
+wiring needed.
+
+**Progressive enhancement:** `styles.css` (and `contact.html`'s own
+`<style>` for `#intake-form`) sets `scroll-margin-top: 130px` directly on
+the anchor targets — a plain-CSS fallback so a native jump still clears the
+header even without JS (just without the centering or the
+header-stays-visible guarantee). **Keep this in sync** — if you add a new
+nav-anchor section, add its id to that selector too (`#fees, #problems,
+#process, #about` in `styles.css`).
 
 ### Scroll reveal
 Below-the-fold content fades and slides up into view the first time it
@@ -505,6 +590,7 @@ files to the web root.
 | Button hover "liquid" effect | `assets/liquid-button.js` + `.btn` CSS |
 | CTA banner glow-follow effect | `assets/liquid-banner.js` + `.banner` CSS |
 | Header shape (fully rounded) + auto-hide-on-scroll | `assets/header-scroll.js` + `.header`/`.is-header-hidden` CSS |
+| Nav-anchor scrolling (Home + section links, header-aware + centered) | `assets/nav-scroll.js` + `scroll-margin-top` CSS |
 | Below-the-fold scroll-in reveal animation | `assets/scroll-reveal.js` + `[data-reveal]`/`[data-reveal-group]` CSS |
 | Hero heading word-by-word blur-in reveal | `assets/hero-typewriter.js` + `[data-typewriter]`/`.tw-word` CSS |
 | Component injection / init orchestration | `assets/include.js` |
@@ -578,7 +664,7 @@ it onto the "Open WhatsApp" CTA).
    `contact.html`, the `mailto:` in `partials/footer.html`, and the `mailto:` in
    `partials/whatsapp-widget.html`. (All three currently use
    `capitalconnectlk@gmail.com`.)
-6. When you add a real page, add it to `sitemap.xml` and give it the seven
+6. When you add a real page, add it to `sitemap.xml` and give it the eight
    `<script defer>` tags (see load order above) plus the three `data-include`
    placeholders and the `<noscript>` scroll-reveal fallback (see "Scroll
    reveal" below).
@@ -711,6 +797,15 @@ it onto the "Open WhatsApp" CTA).
   widths (added a `.phone` stacking rule alongside the new `.grid` one), a
   dead `href="#"` on the form-card's "Request a Call" (now `#intake-form`),
   and an invalid `</br>` (now `<br>`).
+- Added "Home" to the nav, and replaced the browser's native jump-to-fragment
+  for every same-page anchor link with `assets/nav-scroll.js` — a
+  header-aware, truly-centered smooth scroll that also fixes a real bug: a
+  URL like `/#fees` used to land scrolled to the wrong spot, because the
+  native jump fires before the header/footer partials finish injecting.
+  The header now also stays visible for the whole trip instead of
+  potentially auto-hiding mid-navigation (see "Nav-anchor scrolling ('Home'
+  + section links)" and the header's new `revealHeader`/
+  `setHeaderAutoHideSuspended` hooks above).
 
 ## Git / project notes
 
