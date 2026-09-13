@@ -86,12 +86,33 @@ last):
 
 ### Header shape + auto-hide-on-scroll
 The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
-in `styles.css`, `.header`). `assets/header-scroll.js` smoothly slides it up and
-fades it out on scroll-down and brings it back on scroll-up, via a single
-`is-header-hidden` class toggle (CSS handles the actual animation —
-`transform`/`opacity` transition on `.header`, see `styles.css`). It stays
-visible whenever the page is within `REVEAL_AT_TOP` (40px) of the top. Tune the
-threshold constants at the top of `assets/header-scroll.js`.
+in `styles.css`, `.header`). `assets/header-scroll.js` hides it as you scroll
+down and reveals it as you scroll up — **continuously and proportionally to
+scroll distance**, not as a binary show/hide snap. It tracks a `progress`
+value (0 = fully shown, 1 = fully hidden) that increases/decreases with every
+pixel scrolled, written each frame to a `--header-hide` CSS custom property on
+`.header`. `styles.css` reads that variable directly:
+`transform: translate3d(0, calc(var(--header-hide) * -130%), 0)` and
+`opacity: calc(1 - var(--header-hide))`, plus a short (`.2s`) transition that
+only smooths the gap *between* animation frames — the header's position is
+otherwise driven by how far you've actually scrolled, the same technique
+`assets/whatsapp-widget.js` uses for its own scroll-linked mobile collapse
+(`--wa-collapse-progress`). This is what makes the motion feel tied to the
+scroll gesture (like iOS Safari's URL bar) instead of a fixed-duration
+open/close animation that plays the same way regardless of how far or fast
+you scrolled.
+
+Constants (top of `assets/header-scroll.js`):
+- `REVEAL_AT_TOP` (40px) — always fully visible within this many px of the top.
+- `HIDE_DISTANCE` (260px) — how much scrolling it takes to go from fully
+  shown to fully hidden. Raise this for a slower, more gradual reveal; lower
+  it for a snappier one. A single normal scroll tick (~100–150px) should
+  only partially hide the header, not snap it fully away — if a future
+  change makes that happen again, `HIDE_DISTANCE` is too small relative to
+  typical scroll deltas.
+- `HIDDEN_CLASS_AT` (0.92) — progress beyond which the `is-header-hidden`
+  class is added, purely to set `pointer-events: none` once the header is
+  effectively invisible (so it can't intercept clicks while faded out).
 
 **Important:** the hide/show logic itself always runs — it is *not* gated
 behind `prefers-reduced-motion` in JS. A browser/OS (or automated test
@@ -288,6 +309,11 @@ it onto the "Open WhatsApp" CTA).
   shared header and `contact.html`'s separate `.form-head`) by scaling text
   down with `clamp()` instead of letting it wrap (see "Mobile header/CTA"
   above).
+- Rebuilt the header's hide/show from a binary class-toggle (a single small
+  scroll delta snapped it straight to fully hidden) into a continuous,
+  scroll-distance-driven `--header-hide` progress value, so it slides/fades
+  gradually in proportion to how far you've scrolled instead of vanishing
+  after one wheel-tick (see "Header shape + auto-hide-on-scroll" above).
 
 ## Git / project notes
 
