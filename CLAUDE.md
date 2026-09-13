@@ -68,8 +68,9 @@ shared `window.CCLK` namespace:
 | `assets/liquid-banner.js` | `CCLK.initLiquidBanner()` | `.banner` (no-op if absent) |
 | `assets/whatsapp-widget.js` | `CCLK.initWhatsApp()` | `.whatsapp-widget` |
 | `assets/header-scroll.js` | `CCLK.initHeaderScroll()` | `.header` |
+| `assets/scroll-reveal.js` | `CCLK.initScrollReveal()` | every `[data-reveal]`/`[data-reveal-group]` |
 
-`assets/include.js` calls all four (guarded, once) after partials are injected,
+`assets/include.js` calls all five (guarded, once) after partials are injected,
 then dispatches a `components:loaded` event on `document`. Each init is
 idempotent (guarded by a `_*Done` flag) so calling twice is safe.
 
@@ -81,6 +82,7 @@ last):
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
+<script src="assets/scroll-reveal.js" defer></script>
 <script src="assets/include.js" defer></script>
 ```
 
@@ -196,6 +198,72 @@ inside a *tight, non-wrapping* flex row in the future, make sure there's
 enough space or add a `clamp()` shrink like the header's, rather than
 removing the global `nowrap`.
 
+### "How It Works" steps
+The 5-step process (`#process` in `index.html`) is a fixed-column grid, not
+the auto-wrapping layout it started as. `.steps` is
+`grid-template-columns:repeat(5,minmax(0,1fr))` on desktop (all 5 steps in
+one row, by design — don't go back to `repeat(auto-fit,minmax(...))`, which
+is what caused an uneven 4+1 wrap before), stepping down to 3 columns at
+`≤1040px`, 2 at `≤920px`, and 1 at `≤520px` (same breakpoints as everywhere
+else in the file).
+
+Each `.step` card is a **vertical, centered stack** — `step-number` (a small
+"Step N" pill), `step-icon` (a circular badge with an inline SVG, same
+visual language as `.feature-icon` in the About section: `#0A84FF` stroke,
+~1.6–1.9 stroke-width), then an `<h3>` title and a `.caption` description —
+not the old horizontal `<div class="bullet">N</div><div><strong>…</strong>
+<br><span>…</span></div>` layout, which caused uneven text wrapping because
+title and description shared one flexible-width inline block. Keep new steps
+in this same icon+h3+p shape; don't reintroduce the `<br>`-separated inline
+layout.
+
+The existing hover lift/glow (`.step:hover`) still applies; the icon also
+scales slightly on hover (`.step:hover .step-icon`). If you add a 6th step
+(or remove one), the `nth-child` stagger delays for `[data-reveal-group]`
+in the "scroll reveal" rules below only go up to 6 — extend them if you add
+more child items to any staggered group.
+
+### Scroll reveal
+Below-the-fold content fades and slides up into view the first time it
+scrolls into the viewport (`assets/scroll-reveal.js`, exposed as
+`CCLK.initScrollReveal()`) — a one-time "content loads in as you scroll"
+effect, not a repeating scroll-linked animation. Two attributes, both styled
+in `styles.css` under "scroll reveal" (the JS only toggles a class):
+
+- `data-reveal` — the element itself fades/slides in as a whole. Used on
+  section intros/single blocks: `.fees-head`, the CTA `.banner`,
+  `.process-intro`, `.about-side`, and `contact.html`'s "learn more" card.
+- `data-reveal-group` — the element's **direct children** fade/slide in
+  individually, staggered via `nth-child` transition-delays (currently
+  defined for up to 6 children). Used on card/grid rows: `.fees-grid`,
+  `.problems`, `.steps`, `.about-grid`.
+
+**Don't nest a `data-reveal`/`data-reveal-group` element inside another one.**
+Both are hidden (`opacity:0`) until revealed, so a `data-reveal-group` INSIDE
+a `data-reveal` parent would have its own transform stack on top of the
+parent's during the transition — the `.problems` heading block was
+deliberately left without its own `data-reveal` for exactly this reason
+(`.problems`, which has `data-reveal-group`, lives inside it). Siblings are
+fine — that's how `.fees-head` / `.fees-grid` / `.banner` and
+`.process-intro` / `.steps` are set up.
+
+The hero and header are intentionally **not** wrapped in either attribute —
+above-the-fold content should be visible immediately on load, not delayed
+behind a scroll trigger.
+
+**Progressive enhancement:** if `assets/scroll-reveal.js` never runs (JS
+disabled, blocked, or errors before it loads), content marked `data-reveal`/
+`data-reveal-group` would otherwise stay invisible forever, since only the
+JS adds the revealing class. Each page's `<head>` has a `<noscript>` block
+that forces it all visible when JS is unavailable — keep that block if you
+add a new page with any reveal-marked content.
+
+Like `assets/header-scroll.js`, this does **not** gate itself behind
+`prefers-reduced-motion` — consistent with this project's established
+approach (see "Header shape + auto-hide-on-scroll" above): the motion here
+is a small, one-time fade/8–26px slide, not parallax/zoom/rotation, so it
+always plays.
+
 ## Running locally
 
 Partials are fetched over HTTP, so you **must** serve the folder — opening the
@@ -276,6 +344,7 @@ files to the web root.
 | Button hover "liquid" effect | `assets/liquid-button.js` + `.btn` CSS |
 | CTA banner glow-follow effect | `assets/liquid-banner.js` + `.banner` CSS |
 | Header shape (fully rounded) + auto-hide-on-scroll | `assets/header-scroll.js` + `.header`/`.is-header-hidden` CSS |
+| Below-the-fold scroll-in reveal animation | `assets/scroll-reveal.js` + `[data-reveal]`/`[data-reveal-group]` CSS |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
 
@@ -316,9 +385,10 @@ it onto the "Open WhatsApp" CTA).
    `contact.html`, the `mailto:` in `partials/footer.html`, and the `mailto:` in
    `partials/whatsapp-widget.html`. (All three currently use
    `capitalconnectlk@gmail.com`.)
-6. When you add a real page, add it to `sitemap.xml` and give it the five
+6. When you add a real page, add it to `sitemap.xml` and give it the six
    `<script defer>` tags (see load order above) plus the three `data-include`
-   placeholders.
+   placeholders and the `<noscript>` scroll-reveal fallback (see "Scroll
+   reveal" below).
 7. Effect scripts must stay idempotent and expose their `CCLK.init*` function;
    don't make them auto-run — `include.js` owns initialisation timing.
 
@@ -391,6 +461,18 @@ it onto the "Open WhatsApp" CTA).
   `contact.html` (titles, meta descriptions, body text), replacing each with
   whichever of period/comma/colon/`|` reads most naturally in that spot (see
   the "no em dashes" bullet under "Architecture & conventions" above).
+- Redesigned the "How It Works" steps from an uneven auto-wrapping grid (4
+  cards on one row, 1 orphaned onto its own) into a fixed 5-column row on
+  desktop (3/2/1 at smaller breakpoints), gave each step its own icon and a
+  clean vertical stack (icon, title, description) instead of an inline
+  `<br>`-separated layout that caused uneven text wrapping (see "'How It
+  Works' steps" above).
+- Added a below-the-fold scroll-reveal animation across `index.html` and
+  `contact.html` (`assets/scroll-reveal.js`, `[data-reveal]`/
+  `[data-reveal-group]`) — content fades/slides into view once as it scrolls
+  into the viewport (see "Scroll reveal" above).
+
+## Git / project notes
 
 - Default branch: `main`. History shows small iterative PRs; keep changes small
   and focused to match.
