@@ -86,37 +86,39 @@ last):
 
 ### Header shape + auto-hide-on-scroll
 The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
-in `styles.css`, `.header`). `assets/header-scroll.js` hides it as you scroll
-down and reveals it as you scroll up — **continuously and proportionally to
-scroll distance**, not as a binary show/hide snap. It tracks a `progress`
-value (0 = fully shown, 1 = fully hidden) that increases/decreases with every
-pixel scrolled, written each frame to a `--header-hide` CSS custom property on
-`.header`. `styles.css` reads that variable directly:
-`transform: translate3d(0, calc(var(--header-hide) * -130%), 0)`, plus a
-short (`.2s`) transition that only smooths the gap *between* animation
-frames — the header's position is otherwise driven by how far you've
-actually scrolled, the same technique `assets/whatsapp-widget.js` uses for
-its own scroll-linked mobile collapse (`--wa-collapse-progress`). This is
-what makes the motion feel tied to the scroll gesture (like iOS Safari's URL
-bar) instead of a fixed-duration open/close animation that plays the same way
-regardless of how far or fast you scrolled.
+in `styles.css`, `.header`). `assets/header-scroll.js` is a **two-state
+swap**: any real scroll down fully hides the header, any real scroll up
+fully brings it back — not a value that tracks scroll position 1:1. It
+toggles a single `is-header-hidden` class on `.header`, and the *smoothness*
+comes entirely from the CSS `transition` on `.header`'s `transform`
+(`.45s cubic-bezier(.22,.61,.36,1)`), which animates between the two fixed
+states (`translate3d(0,0,0)` shown, `translate3d(0,-130%,0)` hidden — clear
+of both the header's own height and its top margin).
 
-**Pure slide, no fade.** `.header` has no `opacity` tied to `--header-hide` —
-only `transform` moves. Don't reintroduce an opacity fade here without being
-asked; it was deliberately removed in favor of a plain up/down slide.
+This went through a couple of iterations worth knowing about if you touch it
+again:
+- An earlier version tried a scroll-linked continuous progress value (like
+  `assets/whatsapp-widget.js`'s mobile collapse, `--wa-collapse-progress`)
+  so the header's position tracked scroll distance directly. That was
+  explicitly reverted — it read as choppy/static rather than a fluid
+  animation. **The current two-state design is deliberate; don't reintroduce
+  continuous scroll-tracking without being asked.**
+- `.header` has no `opacity` tied to hide/show — only `transform` moves.
+  Don't reintroduce an opacity fade here either; it was deliberately removed
+  in favor of a plain up/down slide.
 
 Constants (top of `assets/header-scroll.js`):
 - `REVEAL_AT_TOP` (40px) — always fully visible within this many px of the top.
-- `HIDE_DISTANCE` (260px) — how much scrolling it takes to go from fully
-  shown to fully hidden. Raise this for a slower, more gradual reveal; lower
-  it for a snappier one. A single normal scroll tick (~100–150px) should
-  only partially hide the header, not snap it fully away — if a future
-  change makes that happen again, `HIDE_DISTANCE` is too small relative to
-  typical scroll deltas.
-- `HIDDEN_CLASS_AT` (0.92) — progress beyond which the `is-header-hidden`
-  class is added, purely to set `pointer-events: none` once the header has
-  slid far enough off-screen to be effectively gone (so it can't intercept
-  clicks up there while hidden).
+- `HIDE_THRESHOLD` (18px) — minimum scroll delta in one frame to flip state.
+  Small enough that any real scroll (one wheel tick, one trackpad swipe, one
+  arrow-key press) triggers a full hide/reveal; large enough to ignore
+  momentum jitter and fractional-pixel trackpad noise. Don't set this so
+  high that a normal scroll fails to trigger the swap — the point is "one
+  scroll = fully hidden/shown," not "you have to scroll a lot first."
+
+Transition duration/easing lives in `styles.css` on `.header` (`transition:
+transform .45s cubic-bezier(.22,.61,.36,1), ...`) — that's what to tune for
+"faster snap" vs. "slower glide," not the JS.
 
 **Important:** the hide/show logic itself always runs — it is *not* gated
 behind `prefers-reduced-motion` in JS. A browser/OS (or automated test
@@ -320,6 +322,10 @@ it onto the "Open WhatsApp" CTA).
   after one wheel-tick (see "Header shape + auto-hide-on-scroll" above).
 - Removed the header's opacity fade entirely — it's now a pure position
   slide (`transform` only), per explicit request.
+- Reverted the continuous scroll-distance-driven progress value (added two
+  entries up) back to a two-state class-toggle — the continuous version read
+  as choppy/static rather than a smooth animation. See "Header shape +
+  auto-hide-on-scroll" above for the current (and intended-to-stay) design.
 
 ## Git / project notes
 

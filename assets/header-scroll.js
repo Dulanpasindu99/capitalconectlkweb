@@ -1,16 +1,10 @@
 /*
- * Auto-hiding header: slides straight up out of view as the visitor scrolls
- * down, and slides back down into its default position as they scroll up.
- * Pure position slide only — no opacity/fade. Always fully visible near the
- * top of the page.
- *
- * The hide/reveal amount is driven continuously by how far the user has
- * actually scrolled (a "progress" value from 0 = fully shown to 1 = fully
- * hidden), the same technique assets/whatsapp-widget.js uses for its own
- * scroll-linked collapse. A short CSS transition then smooths out the gaps
- * between individual scroll/animation frames. This is what makes it feel
- * like a native app toolbar (e.g. iOS Safari's URL bar) instead of a single
- * wheel-tick snapping the header straight to fully hidden.
+ * Auto-hiding header: any real scroll down fully slides it up out of view;
+ * any real scroll up brings it fully back down to its default position.
+ * This is a two-state swap (fully shown / fully hidden), not a value that
+ * tracks scroll position 1:1 — the CSS transition on `.header` is what
+ * produces the smooth slide between those two states. Pure position slide
+ * only, no opacity/fade. Always fully visible near the top of the page.
  *
  * Exposes window.CCLK.initHeaderScroll(); assets/include.js calls it once,
  * after the shared header partial (partials/header.html) has been injected.
@@ -33,17 +27,19 @@
     NS._headerScrollDone = true;
 
     const REVEAL_AT_TOP = 40; // always fully visible within this many px of the top
-    const HIDE_DISTANCE = 260; // px of scrolling needed to go from fully shown to fully hidden
-    const HIDDEN_CLASS_AT = 0.92; // progress beyond which pointer-events are disabled
+    // A real scroll (one wheel tick, one trackpad swipe, one arrow-key
+    // press) easily clears this — it's just big enough to ignore jitter
+    // (momentum micro-events, fractional-pixel scroll on some trackpads).
+    const HIDE_THRESHOLD = 18;
 
     let lastY = window.scrollY;
-    let progress = 0; // 0 = fully visible, 1 = fully hidden
+    let hidden = false;
     let ticking = false;
 
-    function applyProgress(next) {
-      progress = Math.max(0, Math.min(1, next));
-      header.style.setProperty('--header-hide', progress.toFixed(4));
-      header.classList.toggle('is-header-hidden', progress >= HIDDEN_CLASS_AT);
+    function setHidden(next) {
+      if (next === hidden) return;
+      hidden = next;
+      header.classList.toggle('is-header-hidden', hidden);
     }
 
     function update() {
@@ -53,11 +49,12 @@
       lastY = currentY;
 
       if (currentY <= REVEAL_AT_TOP) {
-        applyProgress(0);
-        return;
+        setHidden(false);
+      } else if (delta > HIDE_THRESHOLD) {
+        setHidden(true);
+      } else if (delta < -HIDE_THRESHOLD) {
+        setHidden(false);
       }
-
-      applyProgress(progress + delta / HIDE_DISTANCE);
     }
 
     function onScroll() {
