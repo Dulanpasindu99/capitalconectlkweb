@@ -717,6 +717,7 @@ files to the web root.
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
 | SEO: crawler access | `robots.txt` (repo root, allows all, points to `sitemap.xml`) |
+| SEO: social-share/structured-data image | `og-image.png` (square, dark — distinct from the on-page `logo.png`) |
 | Analytics: Google Analytics (gtag.js, `G-VC7M22Y5DS`) | inline `<script>` pair, first thing in `<head>`, both pages |
 
 ### Intake form
@@ -859,8 +860,20 @@ change:
 - **Third-party runtime dependencies:** the Inter font (`fonts.googleapis.com`)
   and the form backend (`formsubmit.co`) are external services loaded at
   runtime with no local fallback. Form submissions leave the site to FormSubmit.
-- **`og:image` uses `logo.png`.** For richer social previews, add a dedicated
-  wide hero image (e.g. `og-hero.jpg`, ~1200×630) and point `og:image` at it.
+- **`og:image`/JSON-LD `logo` is `og-image.png`, a square (1024×1024) dark
+  variant of the mark — not `logo.png`.** `logo.png` (dark ink on
+  transparent) is what renders inline on the page itself (header, footer,
+  contact form-head — see "Logo treatment" above); it's transparent by
+  design so it sits cleanly on the site's light glass backgrounds.
+  `og-image.png` is a separate asset with a solid dark-navy background,
+  used only where the image needs to stand alone as a thumbnail (social
+  share cards, and the `Organization` JSON-LD `logo`/`image` fields Google
+  uses for Knowledge Graph/rich-result branding) — a transparent PNG
+  looks broken in those contexts (it'd render with a hard white or
+  UI-colored square behind it depending on the surface). For an even
+  richer social preview, a *wide* (~1200×630) hero image would still be a
+  further upgrade over this square one — `og-image.png` is a clear
+  improvement over reusing the on-page `logo.png`, not the final word.
 
 ## Recently cleaned up (was broken before the restructure)
 
@@ -1035,6 +1048,15 @@ change:
   what an on-page change can move; see "SEO / AI-visibility notes" below
   for what these changes can and can't do and what's left to the site
   owner off-page.
+- Added `og-image.png` (a user-supplied square, dark-navy variant of the
+  logo mark) and pointed `og:image` (both pages) and the `Organization`
+  JSON-LD `logo`/`image` fields at it instead of the on-page `logo.png` —
+  `logo.png` is transparent by design (see "Logo treatment" above), which
+  renders broken/oddly-backed when used standalone in a social card or as
+  a Knowledge Graph logo; `og-image.png` has its own solid background so
+  it stands alone cleanly. Also added `og:image:width`/`og:image:height`
+  (1024×1024) to both pages. See "Known tradeoffs" above for the
+  `logo.png` vs. `og-image.png` split.
 - `assets/nav-scroll.js`: replaced `window.scrollTo({behavior:'smooth'})`
   with a hand-animated `requestAnimationFrame` glide (`animateScrollTo()`,
   eased, duration scaled to distance) — per feedback that the native
