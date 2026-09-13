@@ -24,6 +24,7 @@ capitalconectlkweb/
 ├── contact.html             # Intake form page (page-specific form only)
 ├── styles.css               # ALL shared styling (single file, no framework)
 ├── sitemap.xml              # SEO sitemap (lists the two real pages)
+├── robots.txt               # Allows all crawlers, points to sitemap.xml
 ├── logo.png                 # Logo (used everywhere; also og:image + JSON-LD logo)
 ├── partials/                # Shared components — injected via data-include (SEE BELOW)
 │   ├── header.html            # Site header + nav + "Book a Call" CTA
@@ -598,6 +599,8 @@ files to the web root.
 | Banner gray→sweep→gradient "loading" reveal | `.banner`/`.banner-sweep` CSS, driven by `.banner.is-revealed` |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
+| SEO: crawler access | `robots.txt` (repo root, allows all, points to `sitemap.xml`) |
+| Analytics: Google Analytics (gtag.js, `G-VC7M22Y5DS`) | inline `<script>` pair, first thing in `<head>`, both pages |
 
 ### Intake form
 `contact.html` posts to **FormSubmit**
@@ -834,6 +837,15 @@ it onto the "Open WhatsApp" CTA).
   gradient underneath. `<noscript>` in `index.html` forces the finished
   gradient immediately so it never stays gray without JS (mirrors the
   existing `.fee-card h3` no-JS fallback added alongside it).
+- SEO/analytics pass, per GoDaddy Airo Site Optimizer suggestions: added
+  `robots.txt` at the repo root (was returning 404 — allows all crawlers,
+  points at `sitemap.xml`); updated `index.html`'s `<title>`, meta
+  description, `og:title`/`og:description`, and added `twitter:title`/
+  `twitter:description` (previously only `twitter:card` was set) to the
+  tool's suggested copy. Also wired up Google Analytics (`gtag.js`,
+  measurement ID `G-VC7M22Y5DS`) on both pages — the snippet is the first
+  thing inside `<head>`, per Google's own setup instructions, so it loads
+  as early as possible.
 
 ## Git / project notes
 
