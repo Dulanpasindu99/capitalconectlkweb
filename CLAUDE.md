@@ -794,6 +794,56 @@ it onto the "Open WhatsApp" CTA).
 7. Effect scripts must stay idempotent and expose their `CCLK.init*` function;
    don't make them auto-run — `include.js` owns initialisation timing.
 
+## SEO / AI-visibility notes
+
+Came up when the site was ranking below unrelated same-named
+organizations ("Capital City College", "capitalconnect.africa") for the
+query "capital connect" — worth understanding the split between what
+code changes here can and can't do about that.
+
+**What on-page changes (the ones in this repo) can do:** make the page
+easy for crawlers and AI answer engines to correctly parse *what this
+site is* and *what it says* — accurate `<title>`/meta description,
+`Organization`/`WebSite`/`FAQPage` JSON-LD that's internally consistent
+(no invented facts, no mismatched social links — see the "Entity/AEO
+pass" changelog entry below for a real mismatch that was caught and
+fixed), a reachable `robots.txt`/`sitemap.xml`, correct heading structure,
+alt text, and fast/mobile-friendly rendering (this site already has all
+of that). This makes it *more likely* a crawler indexes the page
+correctly and an AI Overview/answer engine can accurately summarize or
+cite it *once it has been discovered and has enough signal to trust it*.
+
+**What on-page changes can't do:** win a ranking position, or a #1 slot,
+outright. That's driven by things outside any single page's own markup —
+domain age/authority, the number and quality of backlinks from other
+real sites, business/directory listings (Google Business Profile,
+Sri Lankan startup/business directories), social proof and engagement,
+and direct competition from other entities using the same name. A newer
+domain with modest backlinks will generally rank below an established
+college's website or a funded platform for a shared generic query like
+"capital connect," regardless of how well-optimized its own HTML is —
+structured data and copy can't substitute for off-page authority signals.
+**Nothing in this codebase can promise a specific rank.**
+
+If ranking for "Capital Connect" / "Capital Connect LK" specifically
+matters, the highest-leverage next steps are mostly *off-page*, and need
+the site owner (accounts/verification only they can do), not a code
+change:
+- Verify the site in Google Search Console and submit `sitemap.xml`
+  there (also helps confirm/monitor how Google is actually indexing it).
+- Set up (or claim) a Google Business Profile for Capital Connect LK with
+  Sri Lanka as the location — this is what usually wins local/branded
+  search real estate fastest, faster than organic ranking alone.
+- Get real backlinks: a LinkedIn company page (only add one to
+  `Organization` JSON-LD's `sameAs` once it exists — see "Recently
+  cleaned up" below for why a claimed-but-nonexistent one was removed),
+  local startup/business directory listings, press mentions, founder
+  profiles linking back to the site.
+- Keep publishing genuinely new content over time (freshness is a ranking
+  factor) — this is a static site with no blog/CMS today, so that would
+  be a bigger structural change than a copy edit, worth a separate
+  conversation if it's wanted.
+
 ## Known tradeoffs / things to be aware of
 
 - **`file://` won't work.** Because partials load via `fetch`, double-clicking a
@@ -960,6 +1010,31 @@ it onto the "Open WhatsApp" CTA).
   measurement ID `G-VC7M22Y5DS`) on both pages — the snippet is the first
   thing inside `<head>`, per Google's own setup instructions, so it loads
   as early as possible.
+- Entity/AEO (answer-engine) pass, in response to the site ranking below
+  unrelated same-named organizations ("Capital City College",
+  "capitalconnect.africa") for the query "capital connect": strengthened
+  `index.html`'s `Organization` JSON-LD with `areaServed`/`address`
+  (Sri Lanka — consistent with what the page copy already states
+  throughout, not new information) and `alternateName`; expanded the
+  `FAQPage` JSON-LD from 2 to 5 questions, all mined from copy already on
+  the page (fee tiers, raise sizes, the 5-step process) rather than
+  invented, since AI answer engines and Google's AI Overview pull from
+  FAQ schema for exactly this kind of query. Also fixed a real data
+  mismatch: the `Organization` schema's `sameAs` claimed a Facebook vanity
+  URL (`facebook.com/capitalconnectlk`) that didn't match the actual link
+  in `partials/footer.html` (`facebook.com/profile.php?id=...`), and
+  claimed a LinkedIn company page that wasn't linked anywhere else on the
+  site — both are the kind of unverifiable/mismatched entity claim that
+  can hurt trust signals rather than help, so the Facebook URL was
+  corrected to match the real one and the LinkedIn claim was removed
+  (confirmed with whoever runs the account rather than assumed). Added
+  matching `og:*`/`twitter:*` tags to `contact.html` (previously only
+  `index.html` had them) and `<lastmod>`/`<changefreq>`/`<priority>` to
+  `sitemap.xml`. **None of this can promise a #1 ranking** — that depends
+  on backlinks, domain age/authority, and competition, which are outside
+  what an on-page change can move; see "SEO / AI-visibility notes" below
+  for what these changes can and can't do and what's left to the site
+  owner off-page.
 - `assets/nav-scroll.js`: replaced `window.scrollTo({behavior:'smooth'})`
   with a hand-animated `requestAnimationFrame` glide (`animateScrollTo()`,
   eased, duration scaled to distance) — per feedback that the native
