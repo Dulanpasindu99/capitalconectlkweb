@@ -92,15 +92,18 @@ scroll distance**, not as a binary show/hide snap. It tracks a `progress`
 value (0 = fully shown, 1 = fully hidden) that increases/decreases with every
 pixel scrolled, written each frame to a `--header-hide` CSS custom property on
 `.header`. `styles.css` reads that variable directly:
-`transform: translate3d(0, calc(var(--header-hide) * -130%), 0)` and
-`opacity: calc(1 - var(--header-hide))`, plus a short (`.2s`) transition that
-only smooths the gap *between* animation frames — the header's position is
-otherwise driven by how far you've actually scrolled, the same technique
-`assets/whatsapp-widget.js` uses for its own scroll-linked mobile collapse
-(`--wa-collapse-progress`). This is what makes the motion feel tied to the
-scroll gesture (like iOS Safari's URL bar) instead of a fixed-duration
-open/close animation that plays the same way regardless of how far or fast
-you scrolled.
+`transform: translate3d(0, calc(var(--header-hide) * -130%), 0)`, plus a
+short (`.2s`) transition that only smooths the gap *between* animation
+frames — the header's position is otherwise driven by how far you've
+actually scrolled, the same technique `assets/whatsapp-widget.js` uses for
+its own scroll-linked mobile collapse (`--wa-collapse-progress`). This is
+what makes the motion feel tied to the scroll gesture (like iOS Safari's URL
+bar) instead of a fixed-duration open/close animation that plays the same way
+regardless of how far or fast you scrolled.
+
+**Pure slide, no fade.** `.header` has no `opacity` tied to `--header-hide` —
+only `transform` moves. Don't reintroduce an opacity fade here without being
+asked; it was deliberately removed in favor of a plain up/down slide.
 
 Constants (top of `assets/header-scroll.js`):
 - `REVEAL_AT_TOP` (40px) — always fully visible within this many px of the top.
@@ -111,19 +114,20 @@ Constants (top of `assets/header-scroll.js`):
   change makes that happen again, `HIDE_DISTANCE` is too small relative to
   typical scroll deltas.
 - `HIDDEN_CLASS_AT` (0.92) — progress beyond which the `is-header-hidden`
-  class is added, purely to set `pointer-events: none` once the header is
-  effectively invisible (so it can't intercept clicks while faded out).
+  class is added, purely to set `pointer-events: none` once the header has
+  slid far enough off-screen to be effectively gone (so it can't intercept
+  clicks up there while hidden).
 
 **Important:** the hide/show logic itself always runs — it is *not* gated
 behind `prefers-reduced-motion` in JS. A browser/OS (or automated test
 environment) reporting reduced motion would otherwise disable the whole
 feature, which reads as "the animation doesn't work" rather than "reduced
 motion." Instead, `prefers-reduced-motion: reduce` is handled purely in CSS
-(`styles.css`, the media query on `.header`/`.is-header-hidden`): those users
-still get the show/hide state change, just as a plain fade with no slide
-instead of the full transform animation. If you ever need to gate a scroll
-effect on reduced motion again, do it in the CSS transition, not by skipping
-the JS state change.
+(`styles.css`, the media query on `.header`): those users still get the
+show/hide state change, just with the `transition` dropped (an instant snap
+instead of an animated slide). If you ever need to gate a scroll effect on
+reduced motion again, do it in the CSS transition, not by skipping the JS
+state change.
 
 ### Logo treatment
 The logo renders as a plain `<img class="logo-image">` — no background box,
@@ -311,9 +315,11 @@ it onto the "Open WhatsApp" CTA).
   above).
 - Rebuilt the header's hide/show from a binary class-toggle (a single small
   scroll delta snapped it straight to fully hidden) into a continuous,
-  scroll-distance-driven `--header-hide` progress value, so it slides/fades
+  scroll-distance-driven `--header-hide` progress value, so it slides
   gradually in proportion to how far you've scrolled instead of vanishing
   after one wheel-tick (see "Header shape + auto-hide-on-scroll" above).
+- Removed the header's opacity fade entirely — it's now a pure position
+  slide (`transform` only), per explicit request.
 
 ## Git / project notes
 

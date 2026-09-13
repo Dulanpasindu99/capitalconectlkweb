@@ -1,6 +1,7 @@
 /*
- * Auto-hiding header: slides up and fades out as the visitor scrolls down,
- * and slides back into view as they scroll up. Always fully visible near the
+ * Auto-hiding header: slides straight up out of view as the visitor scrolls
+ * down, and slides back down into its default position as they scroll up.
+ * Pure position slide only — no opacity/fade. Always fully visible near the
  * top of the page.
  *
  * The hide/reveal amount is driven continuously by how far the user has
@@ -17,9 +18,9 @@
  * NOTE: this always runs — it is not gated behind prefers-reduced-motion in
  * JS (a browser/OS with that flag on would otherwise disable the feature
  * entirely, which is not what "reduced motion" should mean here). Instead,
- * styles.css softens *how* the state looks for those users (a plain opacity
- * cross-fade, no upward slide) via the `@media (prefers-reduced-motion:
- * reduce)` rule on `.header`.
+ * styles.css drops the animated transition for those users (the header still
+ * hides/shows, it just snaps instantly instead of sliding) via the
+ * `@media (prefers-reduced-motion: reduce)` rule on `.header`.
  */
 (function () {
   const NS = (window.CCLK = window.CCLK || {});
