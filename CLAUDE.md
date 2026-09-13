@@ -87,15 +87,25 @@ last):
 ### Header shape + auto-hide-on-scroll
 The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
 in `styles.css`, `.header`). `assets/header-scroll.js` is a **two-state
-swap**: any real scroll down fully hides the header, any real scroll up
-fully brings it back — not a value that tracks scroll position 1:1. It
-toggles a single `is-header-hidden` class on `.header`, and the *smoothness*
-comes entirely from the CSS `transition` on `.header`'s `transform`
-(`.45s cubic-bezier(.22,.61,.36,1)`), which animates between the two fixed
-states (`translate3d(0,0,0)` shown, `translate3d(0,-130%,0)` hidden — clear
-of both the header's own height and its top margin).
+swap**: a real scroll down fully hides the header (slides it up past the
+top edge of the browser viewport — not a fade, not a collapse-in-place), a
+real scroll up fully brings it back to its default position — not a value
+that tracks scroll position 1:1. It toggles a single `is-header-hidden`
+class on `.header`, and the *smoothness* comes entirely from the CSS
+`transition` on `.header`'s `transform` (`.8s ease-in-out`), which animates
+between the two fixed states (`translate3d(0,0,0)` shown,
+`translate3d(0,-130%,0)` hidden — clear of both the header's own height and
+its top margin).
 
-This went through a couple of iterations worth knowing about if you touch it
+**Doesn't hide on the first scroll.** Hiding only kicks in on the
+`HIDE_AFTER_SCROLLS`-th (currently 3rd) separate downward scroll gesture —
+the first two are ignored, giving the visitor a beat before the nav goes
+away. Scrolling up always reveals immediately (no delay), and that grace
+counter resets every time the header is fully visible again (back near the
+top, or after an up-scroll reveal) — so it's "3 free scrolls," repeatable,
+not a one-time thing per page load.
+
+This went through a few iterations worth knowing about if you touch it
 again:
 - An earlier version tried a scroll-linked continuous progress value (like
   `assets/whatsapp-widget.js`'s mobile collapse, `--wa-collapse-progress`)
@@ -106,30 +116,44 @@ again:
 - `.header` has no `opacity` tied to hide/show — only `transform` moves.
   Don't reintroduce an opacity fade here either; it was deliberately removed
   in favor of a plain up/down slide.
+- The transition easing went from a fast-start/long-tail curve
+  (`cubic-bezier(.16,1,.3,1)`, most of the motion done in the first ~150ms
+  of a 700ms transition) to a plain `ease-in-out`, which spreads the motion
+  evenly across the full duration. The fast-start curve technically had a
+  long transition but didn't *read* as slow, because nearly all the visible
+  travel happened almost immediately. If "slow, smooth" motion is requested
+  again and it doesn't feel that way, suspect the easing curve's shape
+  before assuming the duration is too short.
 
 Constants (top of `assets/header-scroll.js`):
 - `REVEAL_AT_TOP` (40px) — always fully visible within this many px of the top.
-- `HIDE_THRESHOLD` (18px) — minimum scroll delta in one frame to flip state.
-  Small enough that any real scroll (one wheel tick, one trackpad swipe, one
-  arrow-key press) triggers a full hide/reveal; large enough to ignore
-  momentum jitter and fractional-pixel trackpad noise. Don't set this so
-  high that a normal scroll fails to trigger the swap — the point is "one
-  scroll = fully hidden/shown," not "you have to scroll a lot first."
+- `HIDE_THRESHOLD` (18px) — minimum scroll delta in one frame to count as a
+  "real" scroll gesture. Small enough that any real scroll (one wheel tick,
+  one trackpad swipe, one arrow-key press) counts; large enough to ignore
+  momentum jitter and fractional-pixel trackpad noise.
+- `HIDE_AFTER_SCROLLS` (3) — number of separate qualifying downward scroll
+  gestures required before the header starts hiding.
 
 Transition duration/easing lives in `styles.css` on `.header` (`transition:
-transform .45s cubic-bezier(.22,.61,.36,1), ...`) — that's what to tune for
-"faster snap" vs. "slower glide," not the JS.
+transform .8s ease-in-out, ...`) — that's what to tune for "faster snap" vs.
+"slower glide," not the JS. See the easing note above before reaching for a
+non-linear/eased-out curve here.
 
-**Important:** the hide/show logic itself always runs — it is *not* gated
-behind `prefers-reduced-motion` in JS. A browser/OS (or automated test
-environment) reporting reduced motion would otherwise disable the whole
-feature, which reads as "the animation doesn't work" rather than "reduced
-motion." Instead, `prefers-reduced-motion: reduce` is handled purely in CSS
-(`styles.css`, the media query on `.header`): those users still get the
-show/hide state change, just with the `transition` dropped (an instant snap
-instead of an animated slide). If you ever need to gate a scroll effect on
-reduced motion again, do it in the CSS transition, not by skipping the JS
-state change.
+**Important — the transition is NOT dropped for `prefers-reduced-motion`.**
+An earlier version both (a) fully disabled the JS hide/show logic under
+reduced motion, and later (b) kept the logic but dropped the CSS transition
+(instant snap, no visible slide) for reduced-motion users. Both were tried
+and both effectively meant "no animation is felt" for anyone (or any test
+environment — the in-app Browser pane used for testing this site always
+reports `prefers-reduced-motion: reduce`) with that flag set, which directly
+contradicted repeated, explicit requests to make this animation clearly
+visible. The call made here: this is a single, plain position slide (not
+parallax/zoom/rotation-style motion), so the transition now always plays,
+unconditionally, regardless of `prefers-reduced-motion`. If accessibility
+concerns about this need revisiting, that's a product decision to raise with
+whoever owns the site — don't silently reintroduce a reduced-motion
+carve-out that mutes the animation; it will very likely just reproduce this
+same "I can't feel it" feedback loop.
 
 ### Logo treatment
 The logo renders as a plain `<img class="logo-image">` — no background box,
@@ -326,6 +350,13 @@ it onto the "Open WhatsApp" CTA).
   entries up) back to a two-state class-toggle — the continuous version read
   as choppy/static rather than a smooth animation. See "Header shape +
   auto-hide-on-scroll" above for the current (and intended-to-stay) design.
+- Added the 3-scroll grace period before hiding starts; switched the
+  transition's easing from a fast-start/long-tail curve to plain
+  `ease-in-out` (the motion wasn't reading as slow even at 0.7s, because
+  nearly all of it happened in the curve's first ~150ms) and lengthened it
+  to `.8s`; and removed the `prefers-reduced-motion` transition drop
+  entirely, since it meant no animation was felt at all in the exact
+  environment (and possibly browser/OS settings) being used to test this.
 
 ## Git / project notes
 
