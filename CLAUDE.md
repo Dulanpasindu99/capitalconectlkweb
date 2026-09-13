@@ -375,21 +375,40 @@ hover-in rules for `.fee-card-face`, `.fee-card-face--over`, and
 `.fee-card-cta` (so nothing blurs/appears before the fill actually
 finishes).
 
-**Color is a medium navy blue fading to transparent — no white, and not
-the site's brand blue.** This also went through iterations: the site's
-lighter brand blue (`var(--brand)`/`var(--brand-2)`) → a near-black navy
-with a white top sheen + white glow (asked to be "dark blue and white") →
-the current medium navy with **no white at all** (asked to lighten the
-near-black navy and remove the white). `.fee-card-clip::before`'s
-`background-image` is a single `linear-gradient(180deg, rgba(30,58,138,0)
-0%, rgba(30,58,138,.82) 16%, rgba(26,48,112,.92) 100%)` — fully
-transparent at the very top edge, fading into a medium (not near-black)
-navy within the first ~16% of the fill's own height, so the top edge
-reads as a soft fade rather than a hard line. The `box-shadow` glow is
-also navy-tinted (`rgba(30,58,138,.4)`), not white. **Don't reintroduce
-`var(--brand)`/`var(--brand-2)`, white, or a much-darker navy here without
-being asked again** — all three have been explicitly tried and moved away
-from.
+**Color is a medium navy blue fading to transparent — no white, no glow,
+and not the site's brand blue.** This went through several iterations:
+the site's lighter brand blue (`var(--brand)`/`var(--brand-2)`) → a
+near-black navy with a white top sheen + white `box-shadow` glow (asked
+for "dark blue and white") → medium navy, no white, but still a fast
+~16%-of-height ramp to opaque plus a navy `box-shadow` glow (asked to
+lighten the navy and drop the white) → the **current** version, with the
+glow removed entirely and the transparent→opaque ramp spread much more
+gradually. Two real, non-obvious lessons from that last round, worth
+knowing before touching this again:
+1. **A `box-shadow` "glow" at low opacity, sitting over the card's light
+   background, doesn't read as a glow — it reads as a visible white/pale
+   band or line.** This is *why* the glow was removed rather than just
+   re-tinted again; the semi-transparent shadow blending with the light
+   card background behind it was the actual source of the unwanted white
+   line, not the gradient. If a glow is requested again, that interaction
+   with a light backdrop is worth flagging rather than just changing the
+   shadow's color.
+2. **A steep transparent→opaque ramp reads as a hard edge, not a fade,
+   even without a glow.** The previous gradient
+   (`rgba(30,58,138,0) 0%, rgba(30,58,138,.82) 16%, ...`) was already
+   "no white," but reaching 82% opacity within the first 16% of the
+   fill's height still looked like a stark line. The current gradient —
+   `linear-gradient(180deg, rgba(30,58,138,0) 0%, rgba(29,55,130,.5) 55%,
+   rgba(26,48,112,.9) 100%)` — spreads the ramp to the halfway point
+   instead. **If asked to smooth this further, spread the ramp over more
+   of the height (push that middle stop later, e.g. 65-70%), don't just
+   lower the opacity values** — a steep ramp at low opacity still reads
+   as an edge, just a fainter one.
+
+**Don't reintroduce** `var(--brand)`/`var(--brand-2)`, white, a
+near-black navy, a `box-shadow` glow, or a ramp that reaches near-opaque
+within the first ~20% of the height — all have been explicitly tried and
+moved away from.
 
 **Not a flat wipe, but also not a wavy/bumpy one.** The very first version
 was a plain rectangle whose `height` transitioned 0→100%, which read as
