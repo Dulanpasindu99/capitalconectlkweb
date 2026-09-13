@@ -27,7 +27,7 @@ capitalconectlkweb/
 ├── logo.png                 # Logo (used everywhere; also og:image + JSON-LD logo)
 ├── partials/                # Shared components — injected via data-include (SEE BELOW)
 │   ├── header.html            # Site header + nav + "Book a Call" CTA
-│   ├── footer.html            # Site footer + disclaimer + social
+│   ├── footer.html            # Site footer (rounded card) + copyright + social
 │   └── whatsapp-widget.html   # Floating WhatsApp chat widget markup
 ├── assets/
 │   ├── include.js             # Component loader + effect orchestrator (loads partials, then inits effects)
@@ -341,6 +341,36 @@ Note: the user's original upload also sits untouched at the **repo root**
 (`whatsapp-icon.svg`, dark fill, untracked) — the actual asset used by the
 site is the recolored copy in `assets/`.
 
+### Footer
+The footer is a rounded card (`.footer-card`, `border-radius:28px`) sitting
+inside `.container` — the same width as every other section's content
+(header, `.banner`, `.get-started`, ...) — not the full-bleed edge-to-edge
+dark band it used to be. `<footer id="footer" class="footer">` itself is now
+just a plain spacing wrapper (`padding:3rem 0 3.5rem`); `.footer-card` is
+where the dark background/blur/shadow live.
+
+Inside the card: `.footer-main` (logo, tagline, email, CTA button, the
+Facebook icon — unchanged content), a `.footer-sep` divider (`<hr>`), then
+`.footer-bottom` — just the copyright line, nothing else. **The long
+compliance disclaimer paragraph that used to live in the footer
+("Capital Connect LK is a marketing & introductions program...") was
+removed entirely, by request** — it's still on the page, just not here (see
+`#about`'s "Neutral & Compliant" card and the FAQ JSON-LD in `index.html`'s
+`<head>`, both of which cover the same "we don't advise/arrange/handle
+funds" point). If compliance requirements ever call for that disclaimer to
+reappear specifically in the footer, that's a product decision to raise with
+whoever owns the site — don't silently re-add a paraphrased version.
+
+**Copyright year auto-increments — don't hardcode it.** `partials/
+footer.html` has `<span id="footer-year">2026</span>`; that number is only a
+`<noscript>`-equivalent fallback for the rare case JS never runs. On every
+normal load, `assets/include.js`'s `initEnhancements()` (the same function
+that calls all the `CCLK.init*()` effects) sets that span's text to
+`new Date().getFullYear()` — so the year is always correct going forward
+with no yearly edit needed. If you ever touch this, keep the logic in
+`include.js` (it already owns "things that must happen right after partials
+load") rather than adding a dedicated script file just for one line.
+
 ## Running locally
 
 Partials are fetched over HTTP, so you **must** serve the folder — opening the
@@ -416,7 +446,7 @@ files to the web root.
 | Intake form + progress bar | `contact.html` (form + inline `<script>` at bottom) |
 | Form submission backend | `formsubmit.co` → `capitalconnectlk@gmail.com` |
 | Site header / nav / "Book a Call" | `partials/header.html` |
-| Footer / disclaimer / social | `partials/footer.html` |
+| Footer (rounded card, auto-year copyright, social) | `partials/footer.html` + `.footer*` CSS |
 | Floating WhatsApp chat widget | `partials/whatsapp-widget.html` + `assets/whatsapp-widget.js` + `.whatsapp-*` CSS |
 | WhatsApp icon (white line-icon SVG) | `assets/whatsapp-icon.svg` |
 | Button hover "liquid" effect | `assets/liquid-button.js` + `.btn` CSS |
@@ -476,11 +506,13 @@ it onto the "Open WhatsApp" CTA).
   page to open it locally shows the page without header/footer/widget. Always
   serve over HTTP (see "Running locally").
 - **Shared UI is JS-injected**, so JS-disabled clients and non-JS crawlers won't
-  see the header nav, footer disclaimer, or widget. The primary indexable
-  content (H1, hero copy, section headings, FAQ/Org JSON-LD) stays in static
-  HTML, so this is fine for SEO on modern crawlers; keep any future
-  must-be-crawlable content in the page body, not in a partial.
-- **Third-party runtime dependencies:** the Satoshi font (`fonts.cdnfonts.com`)
+  see the header nav, footer content, or widget. The primary indexable
+  content (H1, hero copy, section headings, FAQ/Org JSON-LD, and the
+  compliance disclaimer wording — which lives in `#about`'s "Neutral &
+  Compliant" card and the FAQ schema, not the footer, see "Footer" below)
+  stays in static HTML, so this is fine for SEO on modern crawlers; keep any
+  future must-be-crawlable content in the page body, not in a partial.
+- **Third-party runtime dependencies:** the Inter font (`fonts.googleapis.com`)
   and the form backend (`formsubmit.co`) are external services loaded at
   runtime with no local fallback. Form submissions leave the site to FormSubmit.
 - **`og:image` uses `logo.png`.** For richer social previews, add a dedicated
@@ -571,6 +603,13 @@ it onto the "Open WhatsApp" CTA).
   "benefit" vs. "process" sections shouldn't look like the same pattern
   twice (see "About section (benefits grid) vs. #process (steps)" and
   "'Ready to begin?' is its own section" above).
+- Rebuilt the footer as a rounded card matching the page's other section
+  widths, instead of a full-bleed dark band. Removed the long compliance
+  disclaimer paragraph from it entirely (still present elsewhere on the
+  page — see "Footer" above); replaced it with a single short copyright
+  line below a divider, with a JS-driven auto-incrementing year
+  (`assets/include.js` sets `#footer-year` to `new Date().getFullYear()` on
+  every load) instead of a hardcoded year that would go stale.
 
 ## Git / project notes
 
