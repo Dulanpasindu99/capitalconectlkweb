@@ -593,6 +593,9 @@ files to the web root.
 | Nav-anchor scrolling (Home + section links, header-aware + centered) | `assets/nav-scroll.js` + `scroll-margin-top` CSS |
 | Below-the-fold scroll-in reveal animation | `assets/scroll-reveal.js` + `[data-reveal]`/`[data-reveal-group]` CSS |
 | Hero heading word-by-word blur-in reveal | `assets/hero-typewriter.js` + `[data-typewriter]`/`.tw-word` CSS |
+| Fee-card hover: liquid fill + duotone text + "Request a Call" reveal | `.fee-card*` CSS in `index.html`'s `#fees` (pure CSS, no JS) |
+| Fee-card title blur-in on scroll (per-card staggered) | `.fee-card h3` CSS, driven by `.fees-grid.is-revealed` |
+| Banner gray→sweep→gradient "loading" reveal | `.banner`/`.banner-sweep` CSS, driven by `.banner.is-revealed` |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
 
@@ -806,6 +809,31 @@ it onto the "Open WhatsApp" CTA).
   potentially auto-hiding mid-navigation (see "Nav-anchor scrolling ('Home'
   + section links)" and the header's new `revealHeader`/
   `setHeaderAutoHideSuspended` hooks above).
+- Fee cards (`#fees`): removed the "Model A" card's distinct blue-tinted
+  `is-primary` styling so all three cards look identical (it read as an
+  arbitrary highlight, not an intentional one). Added a per-card, scroll-
+  triggered blur-in on each `<h3>` (staggered like the rest of
+  `[data-reveal-group]`). Added a pure-CSS hover interaction: a brand-color
+  "liquid" fill rises from the bottom of the card (`.fee-card-clip`), a
+  duplicate light-colored copy of the card's text
+  (`.fee-card-face--over`, `aria-hidden`) is revealed via a `clip-path`
+  animated on the same duration as the fill, so the text visually recolors
+  exactly where the liquid has covered it, and once the fill finishes the
+  content blurs and a "Request a Call" badge fades in on top
+  (`.fee-card-cta`, wrapping a normal `.btn` so it keeps the
+  liquid-button.js proximity effect). No JS was added for this — see the
+  comments above `.fee-card-clip` in `styles.css` for the timing/z-index
+  details, including why `.fee-card-clip` must stay in normal flow
+  (`position:relative`, not `absolute`) rather than the card collapsing to
+  near-zero height.
+- Banner (`#cta`, "Raising in Sri Lanka?..."): added a one-time "loading"
+  reveal — the banner starts as a flat dark gray placeholder, and the
+  moment it scrolls into view (the same `.is-revealed` toggle `[data-reveal]`
+  already uses) a bright glow bar sweeps right-to-left across it
+  (`.banner-sweep`) while the background settles into the finished blue
+  gradient underneath. `<noscript>` in `index.html` forces the finished
+  gradient immediately so it never stays gray without JS (mirrors the
+  existing `.fee-card h3` no-JS fallback added alongside it).
 
 ## Git / project notes
 
