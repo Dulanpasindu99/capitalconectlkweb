@@ -299,6 +299,28 @@ without that, a long scroll (e.g. Home → About, scrolling most of the page)
 would trigger `header-scroll.js`'s own auto-hide mid-animation, and you'd
 arrive at the section with the nav you just used now hidden.
 
+**The scroll itself is hand-animated, not `window.scrollTo({behavior:
+'smooth'})`.** An earlier version used the native smooth-scroll option;
+per feedback it read as an abrupt jump rather than a deliberate glide —
+the native implementation's duration/easing isn't controllable and is
+tuned by the browser for a generic "smooth-ish" feel, not for a specific,
+felt animation. `animateScrollTo()` drives `window.scrollTo(0, y)` itself
+every frame via `requestAnimationFrame`, interpolating with
+`easeInOutCubic`, over a duration that scales with distance
+(`Math.abs(distance) / PX_PER_MS`, clamped between `MIN_DURATION` 500ms
+and `MAX_DURATION` 1400ms) so a short hop between neighboring sections and
+a full Home→About trip both feel proportionate — same rationale as
+`header-scroll.js`'s own hand-tuned transition (see "Header shape +
+auto-hide-on-scroll" above): a fixed, felt duration beats whatever a
+built-in default happens to do. It returns a Promise, so
+`withHeaderKeptVisible()` knows *exactly* when the glide finishes and
+resumes the header's auto-hide right then — no more polling to guess
+whether the page had "settled" (an earlier version used a
+`waitForScrollSettle()` that polled `scrollY` for stable frames; that's
+gone now that the scroll is self-driven, since there's nothing left to
+guess). If the visitor scrolls or touches the page mid-glide, the glide
+stops on that frame rather than continuing to fight their input.
+
 **Any link matching (same page + hash pointing at a real element id) is
 intercepted, not just the header nav** — `initNavScroll` attaches to every
 `a[href]` on the page and only calls `preventDefault()` for matches;
@@ -938,6 +960,13 @@ it onto the "Open WhatsApp" CTA).
   measurement ID `G-VC7M22Y5DS`) on both pages — the snippet is the first
   thing inside `<head>`, per Google's own setup instructions, so it loads
   as early as possible.
+- `assets/nav-scroll.js`: replaced `window.scrollTo({behavior:'smooth'})`
+  with a hand-animated `requestAnimationFrame` glide (`animateScrollTo()`,
+  eased, duration scaled to distance) — per feedback that the native
+  smooth scroll read as an abrupt jump rather than a deliberate animation.
+  Also removed the polling-based `waitForScrollSettle()` (no longer
+  needed now that the scroll animation's own Promise resolves at the
+  exact right moment). See "Nav-anchor scrolling" above.
 
 ## Git / project notes
 
