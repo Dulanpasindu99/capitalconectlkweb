@@ -24,6 +24,12 @@
         console.error(`[include] ${fn} failed:`, err);
       }
     });
+
+    // Footer copyright year: always the current year, no manual updates.
+    // The static "2026" in partials/footer.html is only a no-JS fallback.
+    const footerYear = document.getElementById('footer-year');
+    if (footerYear) footerYear.textContent = new Date().getFullYear();
+
     document.dispatchEvent(new CustomEvent('components:loaded'));
   }
 
