@@ -1,6 +1,12 @@
 
 /* Capital Connect LK – single-file CSS (no frameworks) */
-@import url('https://fonts.cdnfonts.com/css/satoshi');
+/* Inter: a widely-used, highly-legible variable font (weight 100-900) —
+   the standard typeface across professional investment/fintech products
+   (Stripe, Wise, and most finance dashboards use it). The variable weight
+   axis means every font-weight value used below (including in-between
+   values like 550/650) renders as its own distinct weight, not just
+   snapping to the nearest of a few static cuts. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
 :root{
   --brand:#0A84FF;
@@ -34,7 +40,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55;font-family:"Satoshi",Arial,sans-serif;font-feature-settings:"liga" 1,"kern" 1;}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-feature-settings:"liga" 1,"kern" 1;}
 html{scroll-behavior:smooth}
 body{position:relative;overflow-x:hidden}
 body::before,body::after{
@@ -66,7 +72,7 @@ img{max-width:100%;display:block}
      down, not a per-frame value tracking scroll position. Pure transform
      only, no opacity/fade. Deliberately not shortened/disabled for
      prefers-reduced-motion — see assets/header-scroll.js's top comment. */
-  transition:transform .8s ease-in-out, box-shadow .4s ease;
+  transition:transform .5s ease-in-out, box-shadow .4s ease;
   will-change:transform;
 }
 .header.is-header-hidden{
@@ -296,7 +302,7 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 
 /* whatsapp widget */
-.whatsapp-widget{position:fixed;right:26px;bottom:26px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:.9rem;font-family:"Satoshi",Arial,sans-serif;--wa-collapse-progress:0}
+.whatsapp-widget{position:fixed;right:26px;bottom:26px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:.9rem;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--wa-collapse-progress:0}
 .whatsapp-widget .whatsapp-toggle{border:0;border-radius:999px;padding:.75rem 1.15rem;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;display:flex;align-items:center;gap:.7rem;font-weight:650;letter-spacing:-.01em;box-shadow:0 20px 44px rgba(18,140,126,.28),0 0 0 1px rgba(255,255,255,.3) inset;cursor:pointer;transition:transform .35s ease, box-shadow .35s ease;justify-content:var(--wa-toggle-justify,flex-start);padding:var(--wa-toggle-padding-y,.75rem) var(--wa-toggle-padding-x,1.15rem);width:var(--wa-toggle-width,auto);height:var(--wa-toggle-height,auto);gap:var(--wa-toggle-gap,.7rem);border-radius:var(--wa-toggle-radius,999px)}
 .whatsapp-widget .whatsapp-toggle:focus-visible{outline:3px solid rgba(37,211,102,.55);outline-offset:3px}
 .whatsapp-widget .whatsapp-toggle:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 28px 58px rgba(18,140,126,.36)}

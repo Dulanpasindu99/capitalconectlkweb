@@ -92,7 +92,7 @@ top edge of the browser viewport — not a fade, not a collapse-in-place), a
 real scroll up fully brings it back to its default position — not a value
 that tracks scroll position 1:1. It toggles a single `is-header-hidden`
 class on `.header`, and the *smoothness* comes entirely from the CSS
-`transition` on `.header`'s `transform` (`.8s ease-in-out`), which animates
+`transition` on `.header`'s `transform` (`.5s ease-in-out`), which animates
 between the two fixed states (`translate3d(0,0,0)` shown,
 `translate3d(0,-130%,0)` hidden — clear of both the header's own height and
 its top margin).
@@ -135,9 +135,12 @@ Constants (top of `assets/header-scroll.js`):
   gestures required before the header starts hiding.
 
 Transition duration/easing lives in `styles.css` on `.header` (`transition:
-transform .8s ease-in-out, ...`) — that's what to tune for "faster snap" vs.
+transform .5s ease-in-out, ...`) — that's what to tune for "faster snap" vs.
 "slower glide," not the JS. See the easing note above before reaching for a
-non-linear/eased-out curve here.
+non-linear/eased-out curve here. (Went `.45s` → `.7s`/`.8s` → `.5s` across
+rounds of feedback — too fast felt like a snap, too slow felt sluggish;
+`.5s` with plain `ease-in-out` was the setting that landed as "smooth" without
+feeling slow.)
 
 **Important — the transition is NOT dropped for `prefers-reduced-motion`.**
 An earlier version both (a) fully disabled the JS hide/show logic under
@@ -228,8 +231,28 @@ files to the web root.
 - **Visual language:** Apple-style "liquid glass" — frosted `backdrop-filter`
   blur, soft gradients, animated background glow blobs, rounded pills, and lots
   of `@keyframes` animations (bottom of `styles.css`).
-- **Fonts:** Satoshi, imported via `@import` from `fonts.cdnfonts.com` at the top
-  of `styles.css`. Both pages `preconnect` to `fonts.cdnfonts.com`.
+- **Fonts:** Inter (variable font, weight range 100–900), imported via
+  `@import` from Google Fonts (`fonts.googleapis.com`) at the top of
+  `styles.css`. Both pages `preconnect` to `fonts.googleapis.com` and
+  `fonts.gstatic.com`. Chosen deliberately for an investment/fintech site —
+  it's the de facto standard sans-serif for professional finance UI (Stripe,
+  Wise, and most fintech dashboards use it), highly legible at small sizes,
+  and because it's a *variable* font every `font-weight` value already used
+  in `styles.css` — including in-between values like `550`/`650` — renders
+  as its own distinct weight rather than snapping to a handful of static
+  cuts. (Previously Satoshi via `fonts.cdnfonts.com`.) The fallback stack is
+  the standard system-UI one: `-apple-system, BlinkMacSystemFont, "Segoe UI",
+  Roboto, Helvetica, Arial, sans-serif`.
+- **No em dashes (`—`) in visible page copy.** Removed by request from all
+  rendered text — titles, meta descriptions, and body copy in `index.html`
+  and `contact.html` — replaced with the punctuation that reads most
+  naturally in each spot (period, comma, colon, or `|` for the `contact.html`
+  page-title/site-name separator). Code comments (CSS/JS) still use them
+  freely; that request was about what's visible on the page, not source
+  comments. Don't reintroduce `—` in new copy — use a comma, colon, period,
+  or restructure the sentence instead. (Ordinary en dashes `–`, e.g. in the
+  `LKR 2M – 50M` range on `index.html`, are a different character and were
+  intentionally left alone — only `—` was in scope.)
 - **JS is progressive enhancement.** Each effect script guards for a missing
   target and is idempotent. The visual design works with JS disabled; only the
   shared header/footer/widget (which are JS-injected) and hover effects require
@@ -357,8 +380,17 @@ it onto the "Open WhatsApp" CTA).
   to `.8s`; and removed the `prefers-reduced-motion` transition drop
   entirely, since it meant no animation was felt at all in the exact
   environment (and possibly browser/OS settings) being used to test this.
-
-## Git / project notes
+- Sped the header transition back down from `.8s` to `.5s` — `.8s` (tuned
+  for "slow enough to feel") ended up reading as too slow once it was
+  actually smooth. Still plain `ease-in-out`.
+- Swapped the typeface from Satoshi to Inter (see "Fonts" above) — a
+  standard, highly-legible sans-serif for investment/fintech UI, loaded as a
+  variable font so all existing (including in-between) `font-weight` values
+  keep working.
+- Removed every em dash (`—`) from visible page copy across `index.html` and
+  `contact.html` (titles, meta descriptions, body text), replacing each with
+  whichever of period/comma/colon/`|` reads most naturally in that spot (see
+  the "no em dashes" bullet under "Architecture & conventions" above).
 
 - Default branch: `main`. History shows small iterative PRs; keep changes small
   and focused to match.
