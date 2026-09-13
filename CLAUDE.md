@@ -361,68 +361,70 @@ always plays.
 Hovering any card in `.fees-grid` (`#fees`, `index.html`) triggers a pure-CSS,
 no-JS "liquid fill" — see the block of CSS comments directly above
 `.fee-card-clip` in `styles.css` for the full rationale; this section is the
-short version plus the "why" behind the less-obvious choices.
+short version plus the "why" behind the less-obvious choices and the
+iterations that led here (useful if a future request tweaks this again).
 
-**Fill duration is 8 seconds, deliberately slow** — an explicit request, not
-a default. If asked to speed this up or slow it down again, the single
-source of truth is the `8s` in `.fee-card:hover .fee-card-clip::before`'s
-`animation` shorthand (`feeLiquidRise`) — but it's referenced in **four
-other places** that must be kept in sync (search `styles.css` for `8s`):
-the matching `feeLiquidRipple`/`feeLiquidRise` pairing, the overlay text's
-hover-in `clip-path` transition duration, and the `transition-delay` on the
+**Fill duration is 3 seconds.** Went through two rounds: 0.7s → 8s (asked
+for much slower) → 3s (8s was then asked to be brought back down). If asked
+to change it again, the single source of truth is the `3s` in
+`.fee-card:hover .fee-card-clip::before`'s `transition`, but it's
+referenced in **four other places** that must be kept in sync (search
+`styles.css` for `3s` near `.fee-card`): the overlay text's hover-in
+`clip-path` transition duration, and the `transition-delay` on the
 hover-in rules for `.fee-card-face`, `.fee-card-face--over`, and
-`.fee-card-cta` (so nothing blurs/appears before the fill actually finishes).
+`.fee-card-cta` (so nothing blurs/appears before the fill actually
+finishes).
 
-**Colors are dark navy + white, not the site's brand blue** — also an
-explicit request (an earlier version used `var(--brand-2)`/`var(--brand)`,
-a lighter blue, and was asked to be swapped for "dark blue and white").
-`.fee-card-clip::before`'s `background-image` list is: two offset
-`radial-gradient` "bumps" (the ripple detail, white-ish) over a
-`linear-gradient(180deg,#13327a,#0b1c48,#050b1e)` body (the dark navy).
-Don't reintroduce `var(--brand)`/`var(--brand-2)` here.
+**Color is a medium navy blue fading to transparent — no white, and not
+the site's brand blue.** This also went through iterations: the site's
+lighter brand blue (`var(--brand)`/`var(--brand-2)`) → a near-black navy
+with a white top sheen + white glow (asked to be "dark blue and white") →
+the current medium navy with **no white at all** (asked to lighten the
+near-black navy and remove the white). `.fee-card-clip::before`'s
+`background-image` is a single `linear-gradient(180deg, rgba(30,58,138,0)
+0%, rgba(30,58,138,.82) 16%, rgba(26,48,112,.92) 100%)` — fully
+transparent at the very top edge, fading into a medium (not near-black)
+navy within the first ~16% of the fill's own height, so the top edge
+reads as a soft fade rather than a hard line. The `box-shadow` glow is
+also navy-tinted (`rgba(30,58,138,.4)`), not white. **Don't reintroduce
+`var(--brand)`/`var(--brand-2)`, white, or a much-darker navy here without
+being asked again** — all three have been explicitly tried and moved away
+from.
 
-**Not a flat wipe — the "liquid" look is a background trick, not a shape
-animation.** Earlier, the fill was a plain rectangle whose `height`
-transitioned 0→100%, which read as "a straight line rising," not liquid.
-The current version keeps that same rising rectangle (still `height`
-0→100%) but decorates it two ways, both riding along "for free" because
-they're part of the *same* element rather than separately-positioned/
-synced pieces:
-1. `background-position` on the two ripple `radial-gradient`s loops
-   continuously (`feeLiquidRipple`, 2.4s, independent of the 8s rise) —
-   since it's the same element's own background, it always sits at
-   whatever the current top edge is.
-2. A negative-offset `box-shadow` (`0 -10px 24px rgba(255,255,255,.35)`)
-   glows just *above* the element's own top edge — same reasoning, it
-   tracks the current fill level automatically with no extra element.
+**Not a flat wipe, but also not a wavy/bumpy one.** The very first version
+was a plain rectangle whose `height` transitioned 0→100%, which read as
+"a straight line rising." A later version tried repeating radial-gradient
+"ripple" bumps tiled along the top edge (plus a separate looping
+`background-position` animation and a `@keyframes` rise so the loop could
+run independently) to simulate waves — that was **removed by request**,
+it read as an ugly row of bubbles/scallops, not a liquid surface. The
+current version is simpler than either extreme: still a plain rising
+rectangle (`height` 0%→100%, plain `transition`, no `@keyframes`), but the
+transparent-to-navy fade described above (which rides along for free,
+since it's the same element's own background) gives it a soft "liquid
+surface" read without needing any bump/wave shapes. If a wavy/bumpy top
+edge is explicitly requested again, don't reach for the old repeating-
+radial-gradient-ripple approach — it was tried and explicitly rejected as
+ugly; an animated multi-point `clip-path` polygon would be a better next
+attempt, and a bigger change, so confirm the direction before building it.
 
-If asked for an even more pronounced wave shape (not just a glow + ripple
-texture), the next step up would be an animated multi-point `clip-path`
-polygon instead of `height` — a bigger change, don't reach for it unless
-specifically asked; the current glow+ripple combo was judged sufficient for
-"liquid" without that complexity.
-
-**Two different mechanisms for fill vs. retract, on purpose.** The 8s rise
-uses a `@keyframes animation` (not a plain `transition`) specifically so the
-looping ripple animation can run *alongside* it independently on the same
-element. Leaving hover removes that animation; the plain
-`transition:height 1s ease` on `.fee-card-clip::before`'s base (non-hover)
-rule then takes over and smoothly retracts from wherever the fill had
-reached — this is a deliberate, intentional technique (animations and
-transitions on the same property can coexist like this: the animation wins
-while it's running, the transition takes over the instant it's removed),
-not an accident. **The retract is 1 second, not 8** — leaving is meant to
-feel snappy, not mirror the slow fill. This is why the overlay text
-(`.fee-card-face--over`) and the CTA badge (`.fee-card-cta`) each need
-*two* different transition durations for the same property depending on
-direction (an 8s one only on the `:hover` rule, a fast ~1s/0.35s one only
-on the base rule) — if you copy this pattern elsewhere, remember to set
-the **base rule's** transition duration for the property that needs a fast
-retract; a single shared duration on both rules (which is what caused a
-real bug here — the overlay stayed at full "liquid covered" white text for
-up to 8s after the liquid itself had already retracted in 1s, since its
-base rule's `clip-path` transition hadn't been shortened to match) will
-desync a fast-retracting property from the CTA/overlay.
+**Fill (3s) and retract (1s) use different durations, both as plain
+`transition`s — not an `animation`.** An earlier version used a
+`@keyframes animation` for the rise specifically to run the (now-removed)
+ripple loop independently; with the ripple gone there's no more reason for
+that complexity, so this was simplified back to a plain `transition:height`
+with a different duration on the base rule (`1s`, for a fast retract) vs.
+the `:hover` rule (`3s`, for the slow fill) — the same asymmetric-duration
+technique already used below for the overlay text and CTA badge. If you
+copy this pattern elsewhere: remember the **base rule's** duration is what
+governs leaving hover, and it needs to independently stay short for every
+property that should retract quickly. A real bug happened here from
+exactly this: the overlay text's `clip-path` base-rule duration was left
+at the old slow value while the liquid's retract was shortened, so on
+mouse-leave the liquid disappeared quickly but the "text has changed
+color" overlay stayed fully visible for several more seconds, visibly
+desyncing from the now-gone liquid. Keep the overlay's (and CTA's) base-
+rule retract duration short and independent from the fill duration.
 
 **No banner "loading" animation exists anymore** — an earlier round added
 one to `#cta` (a gray placeholder → sweep → gradient settle, mirroring this
@@ -669,7 +671,7 @@ files to the web root.
 | Nav-anchor scrolling (Home + section links, header-aware + centered) | `assets/nav-scroll.js` + `scroll-margin-top` CSS |
 | Below-the-fold scroll-in reveal animation | `assets/scroll-reveal.js` + `[data-reveal]`/`[data-reveal-group]` CSS |
 | Hero heading word-by-word blur-in reveal | `assets/hero-typewriter.js` + `[data-typewriter]`/`.tw-word` CSS |
-| Fee-card hover: 8s dark-navy/white liquid fill + duotone text + "Request a Call" reveal | `.fee-card*` CSS in `index.html`'s `#fees` (pure CSS, no JS) |
+| Fee-card hover: 3s medium-navy liquid fill + duotone text + "Request a Call" reveal | `.fee-card*` CSS in `index.html`'s `#fees` (pure CSS, no JS) |
 | Fee-card title blur-in on scroll (per-card staggered) | `.fee-card h3` CSS, driven by `.fees-grid.is-revealed` |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
@@ -890,34 +892,24 @@ it onto the "Open WhatsApp" CTA).
   `is-primary` styling so all three cards look identical (it read as an
   arbitrary highlight, not an intentional one). Added a per-card, scroll-
   triggered blur-in on each `<h3>` (staggered like the rest of
-  `[data-reveal-group]`). Added a pure-CSS hover interaction: a dark-navy/
-  white "liquid" fill rises from the bottom of the card (`.fee-card-clip`)
-  over 8 seconds, with a rippling wave surface and a soft glow riding the
-  top edge rather than a flat wipe (see "Fee-card hover" below); a
-  duplicate light-colored copy of the card's text
+  `[data-reveal-group]`). Added a pure-CSS hover interaction: a medium-navy
+  "liquid" fill (fading to transparent right at its own top edge, no
+  white) rises from the bottom of the card (`.fee-card-clip`) over 3
+  seconds; a duplicate light-colored copy of the card's text
   (`.fee-card-face--over`, `aria-hidden`) is revealed via a `clip-path`
-  animated on the same 8s duration, so the text visually recolors roughly
+  animated on the same 3s duration, so the text visually recolors roughly
   where the liquid has covered it, and once the fill finishes the content
   blurs and a "Request a Call" badge fades in on top (`.fee-card-cta`,
   wrapping a normal `.btn` so it keeps the liquid-button.js proximity
-  effect). No JS was added for this. This went through two iterations:
-  the first version used a flat, fast (0.7s) light-blue wipe and a gray-
-  placeholder "loading" sweep on the `#cta` banner; per feedback that the
-  banner animation should be removed entirely and the fee-card fill
-  should be slower, dark-navy/white, and actually liquid-shaped (not a
-  straight line), the banner reveal was fully reverted (back to its
-  original plain gradient background, no `.banner-sweep`/gray state) and
-  the fee-card fill was reworked as described above and in the "Fee-card
-  hover" section below.
-- SEO/analytics pass, per GoDaddy Airo Site Optimizer suggestions: added
-  `robots.txt` at the repo root (was returning 404 — allows all crawlers,
-  points at `sitemap.xml`); updated `index.html`'s `<title>`, meta
-  description, `og:title`/`og:description`, and added `twitter:title`/
-  `twitter:description` (previously only `twitter:card` was set) to the
-  tool's suggested copy. Also wired up Google Analytics (`gtag.js`,
-  measurement ID `G-VC7M22Y5DS`) on both pages — the snippet is the first
-  thing inside `<head>`, per Google's own setup instructions, so it loads
-  as early as possible.
+  effect). No JS was added for this. Went through several rounds of
+  feedback on the fill's speed/color/shape (0.7s light-blue flat wipe →
+  8s near-black-navy-and-white with a bubbly ripple texture → 3s medium
+  navy fading to transparent, no bumps, no white) — see "Fee-card hover
+  interaction" above for the full history and the values that must stay
+  in sync if this is tuned again. A one-time gray→sweep→gradient "loading"
+  animation was also added to the `#cta` banner alongside the first round
+  of this, then removed entirely by request in a later round — `.banner`
+  is back to its original plain gradient, no `.banner-sweep`.
 - SEO/analytics pass, per GoDaddy Airo Site Optimizer suggestions: added
   `robots.txt` at the repo root (was returning 404 — allows all crawlers,
   points at `sitemap.xml`); updated `index.html`'s `<title>`, meta
