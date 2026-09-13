@@ -17,7 +17,7 @@
   const NS = (window.CCLK = window.CCLK || {});
 
   function initEnhancements() {
-    ['initLiquidButtons', 'initLiquidBanner', 'initWhatsApp'].forEach((fn) => {
+    ['initLiquidButtons', 'initLiquidBanner', 'initWhatsApp', 'initHeaderScroll'].forEach((fn) => {
       try {
         if (typeof NS[fn] === 'function') NS[fn]();
       } catch (err) {

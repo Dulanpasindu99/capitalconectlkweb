@@ -59,7 +59,7 @@ widget markup that lives inside the injected partials).
 paste that markup back into the pages.
 
 ### How the JS is wired
-The three effect scripts do **not** auto-run. Each defines an init function on a
+The effect scripts do **not** auto-run. Each defines an init function on a
 shared `window.CCLK` namespace:
 
 | Script | Exposes | Binds to |
@@ -67,8 +67,9 @@ shared `window.CCLK` namespace:
 | `assets/liquid-button.js` | `CCLK.initLiquidButtons()` | all `.btn` |
 | `assets/liquid-banner.js` | `CCLK.initLiquidBanner()` | `.banner` (no-op if absent) |
 | `assets/whatsapp-widget.js` | `CCLK.initWhatsApp()` | `.whatsapp-widget` |
+| `assets/header-scroll.js` | `CCLK.initHeaderScroll()` | `.header` |
 
-`assets/include.js` calls all three (guarded, once) after partials are injected,
+`assets/include.js` calls all four (guarded, once) after partials are injected,
 then dispatches a `components:loaded` event on `document`. Each init is
 idempotent (guarded by a `_*Done` flag) so calling twice is safe.
 
@@ -79,8 +80,19 @@ last):
 <script src="assets/liquid-button.js" defer></script>
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
+<script src="assets/header-scroll.js" defer></script>
 <script src="assets/include.js" defer></script>
 ```
+
+### Header shape + auto-hide-on-scroll
+The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
+in `styles.css`, `.header`). `assets/header-scroll.js` smoothly slides it up and
+fades it out on scroll-down and brings it back on scroll-up, via a single
+`is-header-hidden` class toggle (CSS handles the actual animation —
+`transform`/`opacity` transition on `.header`, see `styles.css`). It stays
+visible whenever the page is within `REVEAL_AT_TOP` (40px) of the top, and
+respects `prefers-reduced-motion` (stays static, no slide, for those users).
+Tune the threshold constants at the top of `assets/header-scroll.js`.
 
 ## Running locally
 
@@ -141,6 +153,7 @@ files to the web root.
 | Floating WhatsApp chat widget | `partials/whatsapp-widget.html` + `assets/whatsapp-widget.js` + `.whatsapp-*` CSS |
 | Button hover "liquid" effect | `assets/liquid-button.js` + `.btn` CSS |
 | CTA banner glow-follow effect | `assets/liquid-banner.js` + `.banner` CSS |
+| Header shape (fully rounded) + auto-hide-on-scroll | `assets/header-scroll.js` + `.header`/`.is-header-hidden` CSS |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
 
@@ -175,7 +188,7 @@ it onto the "Open WhatsApp" CTA).
    `contact.html`, the `mailto:` in `partials/footer.html`, and the `mailto:` in
    `partials/whatsapp-widget.html`. (All three currently use
    `capitalconnectlk@gmail.com`.)
-6. When you add a real page, add it to `sitemap.xml` and give it the four
+6. When you add a real page, add it to `sitemap.xml` and give it the five
    `<script defer>` tags (see load order above) plus the three `data-include`
    placeholders.
 7. Effect scripts must stay idempotent and expose their `CCLK.init*` function;
