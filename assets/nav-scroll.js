@@ -22,16 +22,31 @@
  * link clicks and an already-present #hash on initial load. The URL hash
  * still updates via history.pushState, so links stay shareable/bookmarkable.
  *
+ * The scroll itself is NOT `window.scrollTo({behavior:'smooth'})` — the
+ * native smooth scroll's duration/easing isn't controllable and reads as an
+ * abrupt "jump" rather than a deliberate glide, especially over the short
+ * distance between adjacent sections. animateScrollTo() below drives the
+ * scroll manually frame-by-frame instead (rAF + eased interpolation), the
+ * same reasoning as assets/header-scroll.js's hand-tuned transition: a
+ * fixed, felt duration beats whatever a browser's built-in smoothing
+ * happens to do. Duration scales with distance (clamped) so a short hop
+ * between neighboring sections and a full Home-to-About trip both feel
+ * proportionate rather than either too snappy or too slow.
+ *
  * The header is also kept visible for the whole trip: assets/header-scroll.js's
  * own scroll-based auto-hide is suspended for the duration (a long
  * smooth-scroll fires plenty of scroll events that would otherwise trigger
  * it) and the header is forced visible immediately, so using the nav never
- * leaves the nav itself hidden right when you land somewhere.
+ * leaves the nav itself hidden right when you land somewhere. Since the
+ * scroll is self-driven now, the moment to resume auto-hide is known
+ * exactly (when the animation's own promise resolves) — no more polling to
+ * guess whether the page has "settled."
  *
  * Progressive enhancement: styles.css sets `scroll-margin-top` on the
  * actual section targets as a plain-CSS fallback, so even without this
  * script (or without JS at all) a native jump still clears the header —
- * just without the centering or the header-visible guarantee.
+ * just without the centering, the eased animation, or the header-visible
+ * guarantee.
  *
  * Exposes window.CCLK.initNavScroll(); assets/include.js calls it once,
  * after the header partial (where the nav links live) is injected and
@@ -41,6 +56,67 @@
   const NS = (window.CCLK = window.CCLK || {});
 
   const HEADER_GAP = 24; // minimum breathing room between the header and the section below it
+
+  const MIN_DURATION = 500; // ms — floor, so even an adjacent-section hop still visibly glides
+  const MAX_DURATION = 1400; // ms — ceiling, so a full top-to-bottom trip doesn't drag
+  const PX_PER_MS = 1.6; // roughly how fast the glide travels; duration = distance / this, clamped
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // Drives window scroll position manually, frame by frame, instead of
+  // relying on the browser's own (uncontrollable-duration) smooth scroll.
+  // Returns a Promise that resolves once the glide finishes — or resolves
+  // early if the visitor starts scrolling by hand mid-glide, so a
+  // deliberate scroll/swipe/arrow-key always wins over the programmatic one
+  // rather than fighting it frame by frame.
+  let activeScrollToken = 0;
+
+  function animateScrollTo(targetY) {
+    const token = ++activeScrollToken;
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+
+    if (Math.abs(distance) < 1) return Promise.resolve();
+
+    const duration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, Math.abs(distance) / PX_PER_MS));
+    const startTime = performance.now();
+
+    return new Promise((resolve) => {
+      function cancelOnUserInput() {
+        if (token !== activeScrollToken) return; // already superseded/finished
+        activeScrollToken += 1; // invalidate this glide; the step loop below will stop
+      }
+      window.addEventListener('wheel', cancelOnUserInput, { passive: true, once: true });
+      window.addEventListener('touchstart', cancelOnUserInput, { passive: true, once: true });
+
+      function stopListening() {
+        window.removeEventListener('wheel', cancelOnUserInput);
+        window.removeEventListener('touchstart', cancelOnUserInput);
+      }
+
+      function step(now) {
+        if (token !== activeScrollToken) {
+          stopListening();
+          resolve();
+          return;
+        }
+
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        window.scrollTo(0, startY + distance * easeInOutCubic(t));
+
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          stopListening();
+          resolve();
+        }
+      }
+      requestAnimationFrame(step);
+    });
+  }
 
   function headerBottom() {
     const header = document.querySelector('.header');
@@ -72,52 +148,22 @@
     return Math.max(0, Math.min(target, maxScroll));
   }
 
-  function waitForScrollSettle(onSettled) {
-    let lastY = window.scrollY;
-    let stableFrames = 0;
-    let frames = 0;
-    const maxFrames = 180; // ~3s safety net at 60fps, in case something's off
-
-    function check() {
-      frames += 1;
-      const y = window.scrollY;
-      if (y === lastY) {
-        stableFrames += 1;
-      } else {
-        stableFrames = 0;
-        lastY = y;
-      }
-
-      if (stableFrames >= 4 || frames >= maxFrames) {
-        onSettled();
-        return;
-      }
-      requestAnimationFrame(check);
-    }
-    requestAnimationFrame(check);
-  }
-
-  function withHeaderKeptVisible(scrollFn) {
+  function withHeaderKeptVisible(targetY) {
     if (typeof NS.setHeaderAutoHideSuspended === 'function') NS.setHeaderAutoHideSuspended(true);
     if (typeof NS.revealHeader === 'function') NS.revealHeader();
-    scrollFn();
-    waitForScrollSettle(() => {
+    animateScrollTo(targetY).then(() => {
       if (typeof NS.setHeaderAutoHideSuspended === 'function') NS.setHeaderAutoHideSuspended(false);
     });
   }
 
   function goToTop(pushHash) {
-    withHeaderKeptVisible(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      if (pushHash) history.pushState(null, '', '/');
-    });
+    withHeaderKeptVisible(0);
+    if (pushHash) history.pushState(null, '', '/');
   }
 
   function goToSection(el, hash) {
-    withHeaderKeptVisible(() => {
-      window.scrollTo({ top: scrollTargetFor(el), behavior: 'smooth' });
-      if (hash) history.pushState(null, '', hash);
-    });
+    withHeaderKeptVisible(scrollTargetFor(el));
+    if (hash) history.pushState(null, '', hash);
   }
 
   function normalizePath(pathname) {
