@@ -5,6 +5,13 @@
  *
  * Exposes window.CCLK.initHeaderScroll(); assets/include.js calls it once,
  * after the shared header partial (partials/header.html) has been injected.
+ *
+ * NOTE: the hide/show behaviour always runs — it is not gated behind
+ * prefers-reduced-motion in JS (a browser/OS with that flag on would
+ * otherwise disable the feature entirely, which is not what "reduced
+ * motion" should mean here). Instead, styles.css softens *how* the state
+ * change looks for those users (fade only, no slide) via the
+ * `@media (prefers-reduced-motion: reduce)` rule on `.header`.
  */
 (function () {
   const NS = (window.CCLK = window.CCLK || {});
@@ -18,8 +25,6 @@
 
     const REVEAL_AT_TOP = 40; // always show header within this many px of the top
     const HIDE_THRESHOLD = 6; // ignore sub-pixel/trackpad jitter
-
-    const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let lastY = window.scrollY;
     let hidden = false;
@@ -48,7 +53,6 @@
     }
 
     function onScroll() {
-      if (reduceMotionQuery.matches) return; // keep header static for reduced-motion users
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(update);

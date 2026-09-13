@@ -61,6 +61,17 @@ background-size:7px 7px,7px 7px}
 @keyframes progressShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}
 }
 @keyframes liquidLight{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Keep the form card's own logo/title/CTA row on one line on narrow
+   screens too (same "scale down, never wrap" treatment as the shared
+   header — see the .header rules in styles.css). */
+@media (max-width: 520px){
+  .form-head{padding:1.1rem 1.2rem}
+  .form-head .logo{gap:clamp(.3rem,1.6vw,.65rem)}
+  .form-head .logo-image{width:clamp(22px,7vw,32px);height:clamp(22px,7vw,32px)}
+  .form-head .site-title{font-size:clamp(.68rem,3.4vw,.95rem);white-space:nowrap}
+  .form-head .btn.small{padding:clamp(.36rem,1.6vw,.5rem) clamp(.55rem,2.6vw,.9rem);font-size:clamp(.6rem,2.6vw,.8rem);white-space:nowrap}
+}
 </style>
 </head>
 <body>

@@ -90,9 +90,57 @@ in `styles.css`, `.header`). `assets/header-scroll.js` smoothly slides it up and
 fades it out on scroll-down and brings it back on scroll-up, via a single
 `is-header-hidden` class toggle (CSS handles the actual animation —
 `transform`/`opacity` transition on `.header`, see `styles.css`). It stays
-visible whenever the page is within `REVEAL_AT_TOP` (40px) of the top, and
-respects `prefers-reduced-motion` (stays static, no slide, for those users).
-Tune the threshold constants at the top of `assets/header-scroll.js`.
+visible whenever the page is within `REVEAL_AT_TOP` (40px) of the top. Tune the
+threshold constants at the top of `assets/header-scroll.js`.
+
+**Important:** the hide/show logic itself always runs — it is *not* gated
+behind `prefers-reduced-motion` in JS. A browser/OS (or automated test
+environment) reporting reduced motion would otherwise disable the whole
+feature, which reads as "the animation doesn't work" rather than "reduced
+motion." Instead, `prefers-reduced-motion: reduce` is handled purely in CSS
+(`styles.css`, the media query on `.header`/`.is-header-hidden`): those users
+still get the show/hide state change, just as a plain fade with no slide
+instead of the full transform animation. If you ever need to gate a scroll
+effect on reduced motion again, do it in the CSS transition, not by skipping
+the JS state change.
+
+### Logo treatment
+The logo renders as a plain `<img class="logo-image">` — no background box,
+padding, border-radius, or shadow — directly before the "Capital Connect LK"
+text, in the header, the contact page's form-card header, and the footer. The
+**one exception** is the footer: `logo.png`'s mark is dark ink on a transparent
+background, which would nearly disappear on the footer's dark navy background,
+so `.footer .logo-image` (in `styles.css`) keeps a small white backing (no
+shadow) just there. Header and the contact-page card sit on light glass
+backgrounds, so the raw PNG shows cleanly with no backing needed.
+
+### Mobile header/CTA: scale down, never wrap to a second line
+On narrow viewports the site name and the "Book a Call" / "Request a Call"
+buttons must stay on one line each — never break into two lines — by scaling
+down together as the viewport narrows. This applies in **two** places that
+both use the same `.logo` / `.logo-image` / `.site-title` / `.btn.small`
+markup pattern:
+- The shared header (`partials/header.html`) — rules under `.header` in the
+  `@media (max-width: 520px)` block in `styles.css`.
+- The contact page's own form-card header (`.form-head` in `contact.html`,
+  markup local to that page, not the shared partial) — a matching
+  `@media (max-width: 520px)` block in `contact.html`'s inline `<style>`.
+
+Both use `white-space: nowrap` plus `clamp()`-based font-size/padding/gap so
+text shrinks fluidly instead of wrapping, down to a 320px-wide viewport.
+**If you add a third place with this same logo+title+button pattern, mirror
+these rules there too** — the fix is not automatically shared, since
+`contact.html`'s `.form-head` markup is standalone (see the "Repeatable edit
+rules" exception below).
+
+Note also: `.btn` (all buttons, everywhere) got `white-space: nowrap` added
+as part of this fix, so button labels never break mid-word. This is safe
+everywhere in the current layout — buttons either sit in a `flex-wrap: wrap`
+container (the whole button drops to the next line if it doesn't fit, e.g.
+`.actions`) or have comfortable room (footer, form). If you add a button
+inside a *tight, non-wrapping* flex row in the future, make sure there's
+enough space or add a `clamp()` shrink like the header's, rather than
+removing the global `nowrap`.
 
 ## Running locally
 
@@ -175,6 +223,12 @@ it onto the "Open WhatsApp" CTA).
 
 1. **Shared header/footer/widget = edit the file in `partials/` once.** No page
    duplicates them anymore; there is nothing to keep in sync across pages.
+   **Exception:** `contact.html` has its own second, unrelated logo+title+CTA
+   row — `.form-head` inside the intake form card — styled by that page's own
+   inline `<style>` block, not by `partials/header.html`/`styles.css`. It is
+   *not* wired through the include system. A change to the shared header's
+   look (e.g. logo treatment, mobile scaling) does not automatically apply to
+   `.form-head` — update both if the change should apply to both.
 2. Reuse `:root` CSS variables and existing classes (`.btn`, `.card`,
    `.section`, `.container`, `.caption`, `.eyebrow`) rather than inventing new
    styles.
@@ -224,6 +278,16 @@ it onto the "Open WhatsApp" CTA).
 - Unified the contact email to `capitalconnectlk@gmail.com` everywhere (the
   WhatsApp note on `contact.html` previously used `hello@capitalconnectlk.info`).
 - Extracted the duplicated header/footer/widget into `partials/` (see above).
+- Made the header a fully rounded pill and added the scroll-hide/show
+  behaviour (`assets/header-scroll.js`); fixed a bug where the JS disabled
+  itself entirely under `prefers-reduced-motion` instead of just softening
+  the animation in CSS (see "Header shape + auto-hide-on-scroll" above).
+- Removed the white background/padding/shadow behind the logo everywhere
+  except the footer, where it's needed for contrast (see "Logo treatment").
+- Fixed the header title/CTA wrapping to two lines on narrow phones (both the
+  shared header and `contact.html`'s separate `.form-head`) by scaling text
+  down with `clamp()` instead of letting it wrap (see "Mobile header/CTA"
+  above).
 
 ## Git / project notes
 
