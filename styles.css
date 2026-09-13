@@ -218,21 +218,22 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 /* Fee-card hover interaction (pure CSS, no JS): a dark-navy/white "liquid"
    fill rises from the bottom of the card inside .fee-card-clip (which also
    clips it to the card's rounded corners) over LIQUID_DURATION (3s) below.
-   .fee-card-clip::before is a plain rising rectangle (`height` 0%→100%),
-   given a "liquid glow" feel with two purely-decorative, non-shape layers
-   instead of any bumps/scallops along the top edge (an earlier version
-   used repeating radial-gradient "ripple" bumps there — removed by
-   request, it read as an ugly row of bubbles, not a liquid surface): the
-   body itself is a `linear-gradient` from fully transparent at the very
-   top edge into a medium (not near-black) navy blue within its first
-   ~16%, so the top edge reads as a soft fade rather than a hard line —
-   no white anywhere, by request; a color-matched (also navy, not white)
-   negative-offset `box-shadow` glows just *above* the element's own top
-   edge for the same reason. Both automatically track the current fill
-   level because they belong to the *same* rising element — no extra
-   element, sibling-syncing, or JS needed. If retuning the color, keep it
-   "medium" — the very first version was a near-black navy and was asked
-   to be lightened.
+   .fee-card-clip::before is a plain rising rectangle (`height` 0%→100%);
+   its own background is the only "liquid" styling — no bumps/scallops
+   along the top edge (an earlier version used repeating radial-gradient
+   "ripple" bumps there, removed by request as an ugly row of bubbles) and
+   no glow (an earlier version had a negative-offset `box-shadow` above
+   the top edge; removed by request — against the card's light background
+   a glow at low opacity read as a stray white band/line, not a glow).
+   It's a single `linear-gradient` from fully transparent at the very top
+   edge to a medium (not near-black) navy body, with the transparent→
+   opaque ramp spread across roughly the first **55%** of the fill's own
+   height (not a quick ~16%) — a slow, gradual fade reads as smooth;
+   ramping to mostly-opaque within the first ~16% instead visibly read as
+   a hard edge/line rather than a fade, even before the glow was removed.
+   If retuning this: keep the fade gradual (spread over at least ~50% of
+   the height) and keep the color "medium," not near-black — both were
+   explicitly asked for after earlier, more extreme versions.
    The rise and its retract are both plain `transition:height`, just with
    different durations on the base vs. `:hover` rule (a fast ~1s retract,
    a slow 3s fill) — the same asymmetric-duration technique used below for
@@ -263,9 +264,8 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
   position:absolute;inset:auto 0 0 0;height:0%;
   background-image:linear-gradient(180deg,
     rgba(30,58,138,0) 0%,
-    rgba(30,58,138,.82) 16%,
-    rgba(26,48,112,.92) 100%);
-  box-shadow:0 -8px 20px rgba(30,58,138,.4);
+    rgba(29,55,130,.5) 55%,
+    rgba(26,48,112,.9) 100%);
   transition:height 1s ease;
 }
 .fee-card:hover .fee-card-clip::before{
