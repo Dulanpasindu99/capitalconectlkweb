@@ -1,6 +1,18 @@
+/*
+ * Floating WhatsApp chat widget: open/close panel + mobile scroll-collapse.
+ *
+ * Exposes window.CCLK.initWhatsApp(); assets/include.js calls it once, after
+ * the widget markup (partials/whatsapp-widget.html) has been injected.
+ */
 (function(){
+  const NS = (window.CCLK = window.CCLK || {});
+
+  NS.initWhatsApp = function initWhatsApp(){
+  if(NS._whatsappDone) return;
+
   const widget = document.querySelector('.whatsapp-widget');
   if(!widget) return;
+  NS._whatsappDone = true;
 
   const toggle = widget.querySelector('.whatsapp-toggle');
   const panel = widget.querySelector('.whatsapp-panel');
@@ -290,4 +302,5 @@
   });
 
   syncCollapseMode();
+  };
 })();
