@@ -16,10 +16,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="logo.png">
+<!-- Progressive-enhancement fallback: if JS never runs, don't leave
+     scroll-reveal content permanently hidden (see assets/scroll-reveal.js). -->
+<noscript><style>[data-reveal],[data-reveal-group]>*{opacity:1!important;transform:none!important}</style></noscript>
 <script src="assets/liquid-button.js" defer></script>
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
+<script src="assets/scroll-reveal.js" defer></script>
 <script src="assets/include.js" defer></script>
 <script type="application/ld+json">
 {
@@ -121,7 +125,7 @@
 
 <section id="fees" class="section">
   <div class="container">
-    <div class="fees-head">
+    <div class="fees-head" data-reveal>
       <div>
         <span class="eyebrow">Fees</span>
         <h2>Our Fees Model Is Simple.</h2>
@@ -129,7 +133,7 @@
       <p class="caption">Average raise sizes we work with: <strong>LKR 2M – 50M</strong></p>
     </div>
 
-    <div class="fees-grid">
+    <div class="fees-grid" data-reveal-group>
       <article class="fee-card is-primary">
         <span class="fee-label">Model A</span>
         <h3>Kick-off Tier</h3>
@@ -150,7 +154,7 @@
       </article>
     </div>
 
-    <div class="banner mt-3" id="cta">
+    <div class="banner mt-3" id="cta" data-reveal>
       <div class="banner-inner">
         <h3>Raising in Sri Lanka? We Bring the Right Investors to You.</h3>
         <p class="caption" style="color:#e6fffa">Share once. Get matched. Close faster. No upfront fees • Audit-trailed intros • Private listing</p>
@@ -166,7 +170,7 @@
       <h2>Fundraising Is Harder Than It Should Be.</h2>
       <p class="caption">We keep it simple: private, curated intros so you speak with the right people, faster.</p>
       <hr class="sep">
-      <div class="problems">
+      <div class="problems" data-reveal-group>
         <div class="pi">
           <div class="ic" aria-hidden="true">
             <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
@@ -220,31 +224,68 @@
 
 <section id="process" class="section process-section">
   <div class="container process-wrapper">
-    <div class="process-intro">
+    <div class="process-intro" data-reveal>
       <span class="eyebrow">How It Works</span>
       <h2>Seamless How It Works for Maximum Impact</h2>
       <p class="caption">Every interaction is structured to protect consent, surface the right investors, and keep your raise moving.</p>
     </div>
-    <div class="steps mt-3">
+    <div class="steps mt-3" data-reveal-group>
       <div class="step">
-        <div class="bullet">1</div>
-        <div><strong>Intake</strong><br><span class="caption">Rapid desktop study + on‑site review.</span></div>
+        <span class="step-number">Step 1</span>
+        <span class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="#0A84FF" stroke-width="1.8"/>
+            <path d="M9 4V3.6A1.6 1.6 0 0 1 10.6 2h2.8A1.6 1.6 0 0 1 15 3.6V4" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M9 10.5h6M9 13.5h6M9 16.5h3.5" fill="none" stroke="#0A84FF" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <h3>Intake</h3>
+        <p class="caption">Rapid desktop study + on‑site review.</p>
       </div>
       <div class="step">
-        <div class="bullet">2</div>
-        <div><strong>Basic verification</strong><br><span class="caption">Identity + sanity check; we keep scams out.</span></div>
+        <span class="step-number">Step 2</span>
+        <span class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path d="M12 3.5l6.5 2.6v4.2c0 4.6-2.8 7.9-6.5 8.7-3.7-.8-6.5-4.1-6.5-8.7V6.1L12 3.5z" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 12l2.2 2.2L15.4 10" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <h3>Basic verification</h3>
+        <p class="caption">Identity + sanity check; we keep scams out.</p>
       </div>
       <div class="step">
-        <div class="bullet">3</div>
-        <div><strong>Private listing</strong><br><span class="caption">No public offer. Details shown only to matched investors, with consent.</span></div>
+        <span class="step-number">Step 3</span>
+        <span class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <rect x="5.5" y="10.5" width="13" height="9.5" rx="2" fill="none" stroke="#0A84FF" stroke-width="1.8"/>
+            <path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="15" r="1.3" fill="#0A84FF"/>
+          </svg>
+        </span>
+        <h3>Private listing</h3>
+        <p class="caption">No public offer. Details shown only to matched investors, with consent.</p>
       </div>
       <div class="step">
-        <div class="bullet">4</div>
-        <div><strong>Introduction</strong><br><span class="caption">Investors request contact; we forward a <strong>timestamped</strong> intro and keep an audit trail.</span></div>
+        <span class="step-number">Step 4</span>
+        <span class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <rect x="3.3" y="9" width="8" height="6" rx="3" fill="none" stroke="#0A84FF" stroke-width="1.8" transform="rotate(-25 7.3 12)"/>
+            <rect x="12.7" y="9" width="8" height="6" rx="3" fill="none" stroke="#0A84FF" stroke-width="1.8" transform="rotate(-25 16.7 12)"/>
+          </svg>
+        </span>
+        <h3>Introduction</h3>
+        <p class="caption">Investors request contact; we forward a <strong>timestamped</strong> intro and keep an audit trail.</p>
       </div>
       <div class="step">
-        <div class="bullet">5</div>
-        <div><strong>Success-only fee</strong><br><span class="caption">Fee applies only if a <strong>Qualifying Investor</strong> we introduced actually invests.</span></div>
+        <span class="step-number">Step 5</span>
+        <span class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.2" fill="none" stroke="#0A84FF" stroke-width="1.8"/>
+            <path d="M8.3 12.3l2.4 2.4 5-5.2" fill="none" stroke="#0A84FF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <h3>Success-only fee</h3>
+        <p class="caption">Fee applies only if a <strong>Qualifying Investor</strong> we introduced actually invests.</p>
       </div>
     </div>
   </div>
@@ -262,7 +303,7 @@
         <span class="pill">Audit Trail Included</span>
       </div>
 
-      <div class="about-grid">
+      <div class="about-grid" data-reveal-group>
         <article class="about-feature">
           <span class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" role="img">
@@ -351,7 +392,7 @@
       </div>
     </div>
 
-    <aside class="about-side card">
+    <aside class="about-side card" data-reveal>
       <h3>Ready to begin?</h3>
       <p class="caption">Here’s what happens once you share your round details.</p>
       <ul class="mt-1">

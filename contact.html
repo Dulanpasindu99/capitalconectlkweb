@@ -10,10 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="logo.png">
+<!-- Progressive-enhancement fallback: if JS never runs, don't leave
+     scroll-reveal content permanently hidden (see assets/scroll-reveal.js). -->
+<noscript><style>[data-reveal],[data-reveal-group]>*{opacity:1!important;transform:none!important}</style></noscript>
 <script src="assets/liquid-button.js" defer></script>
 <script src="assets/liquid-banner.js" defer></script>
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
+<script src="assets/scroll-reveal.js" defer></script>
 <script src="assets/include.js" defer></script>
 <style>
 .form-wrap{position:relative;border-radius:32px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.35);backdrop-filter:saturate(180%) blur(32px);box-shadow:0 40px 80px rgba(15,23,42,.22);overflow:hidden;isolation:isolate}
@@ -139,7 +143,7 @@ background-size:7px 7px,7px 7px}
       <div class="helper-strip">🧩We’re ready for you. Expect a response ASAP.</div>
     </div>
 
-    <div class="card mt-3">
+    <div class="card mt-3" data-reveal>
       <div class="caption">learn more</div>
       <h2 style="margin:.1rem 0 .6rem">Capital Connect LK: Vetted investor intros,</br>No upfront fees, just real opportunities.</h2>
       <div class="deck"><span>🟢</span> <strong>View Our Deck</strong></div>

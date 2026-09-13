@@ -231,16 +231,20 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .process-wrapper{position:relative;display:grid;gap:2.6rem}
 .process-intro{max-width:620px;margin-inline:auto;text-align:center;display:grid;gap:.8rem}
 .process-intro .caption{margin:0;font-size:1rem}
-.steps{display:grid;gap:1.3rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.step{position:relative;display:flex;gap:1.1rem;align-items:flex-start;padding:1.2rem 1.4rem;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.46));border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(24px);box-shadow:0 26px 46px rgba(15,23,42,.12);overflow:hidden;transition:transform .45s ease, box-shadow .45s ease}
+.steps{display:grid;gap:1.3rem;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch}
+.step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.55rem;height:100%;padding:1.9rem 1.2rem 1.6rem;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.46));border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(24px);box-shadow:0 26px 46px rgba(15,23,42,.12);overflow:hidden;transition:transform .45s ease, box-shadow .45s ease}
 .step::before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at center,rgba(10,132,255,.55),rgba(255,255,255,0) 65%);background-size:160% 160%;background-position:50% 50%;opacity:0;transition:opacity .45s ease;z-index:0}
 .step::after{content:"";position:absolute;inset:-1px;border-radius:inherit;background:conic-gradient(from 0deg at 50% 50%,rgba(10,132,255,.35),rgba(90,200,250,.1),rgba(10,132,255,.35));opacity:0;filter:blur(28px);transition:opacity .45s ease;z-index:0;transform:rotate(0deg)}
 .step:hover{transform:translateY(-6px);box-shadow:0 38px 68px rgba(10,20,60,.22)}
 .step:hover::before{opacity:.85;animation:stepGlow 2.2s ease-in-out infinite}
 .step:hover::after{opacity:.9;animation:stepSpin 3.4s linear infinite}
+.step:hover .step-icon{transform:scale(1.08);box-shadow:0 18px 32px rgba(10,132,255,.3)}
 .step > *{position:relative;z-index:1}
-.step strong{font-size:1.02rem}
-.bullet{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#5AC8FA);display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:0 16px 30px rgba(10,132,255,.32);flex-shrink:0}
+.step-number{text-transform:uppercase;letter-spacing:.14em;font-size:.66rem;font-weight:700;color:#0a84ff;background:rgba(10,132,255,.12);padding:.28rem .7rem;border-radius:999px}
+.step-icon{width:52px;height:52px;margin-top:.3rem;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,rgba(10,132,255,.18),rgba(90,200,250,.28));border:1.5px solid rgba(10,132,255,.32);box-shadow:0 14px 26px rgba(10,132,255,.22);transition:transform .35s ease, box-shadow .35s ease}
+.step-icon svg{width:56%;height:56%;display:block}
+.step h3{margin:.2rem 0 0;font-size:1.04rem;letter-spacing:-.01em}
+.step .caption{margin:0;font-size:.9rem;line-height:1.5}
 
 /* about */
 .about{display:grid;grid-template-columns:1.1fr .9fr; gap:1.6rem;align-items:start}
@@ -301,6 +305,24 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 .caption{color:var(--muted);font-size:.95rem}
 hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 
+/* scroll reveal — see assets/scroll-reveal.js.
+   [data-reveal]: the element itself fades/slides up into view once.
+   [data-reveal-group]: its direct children do the same, staggered via the
+   nth-child transition-delays below. Both start hidden by default; JS adds
+   .is-revealed the first time the element scrolls into view (one-time, not
+   re-triggered). If JS never runs, the <noscript> style in each page's
+   <head> forces everything visible immediately. */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);}
+[data-reveal].is-revealed{opacity:1;transform:none;}
+[data-reveal-group] > *{opacity:0;transform:translateY(22px);transition:opacity .6s ease, transform .6s ease;}
+[data-reveal-group].is-revealed > *{opacity:1;transform:none;}
+[data-reveal-group].is-revealed > *:nth-child(1){transition-delay:0ms}
+[data-reveal-group].is-revealed > *:nth-child(2){transition-delay:90ms}
+[data-reveal-group].is-revealed > *:nth-child(3){transition-delay:180ms}
+[data-reveal-group].is-revealed > *:nth-child(4){transition-delay:270ms}
+[data-reveal-group].is-revealed > *:nth-child(5){transition-delay:360ms}
+[data-reveal-group].is-revealed > *:nth-child(6){transition-delay:450ms}
+
 /* whatsapp widget */
 .whatsapp-widget{position:fixed;right:26px;bottom:26px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:.9rem;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--wa-collapse-progress:0}
 .whatsapp-widget .whatsapp-toggle{border:0;border-radius:999px;padding:.75rem 1.15rem;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;display:flex;align-items:center;gap:.7rem;font-weight:650;letter-spacing:-.01em;box-shadow:0 20px 44px rgba(18,140,126,.28),0 0 0 1px rgba(255,255,255,.3) inset;cursor:pointer;transition:transform .35s ease, box-shadow .35s ease;justify-content:var(--wa-toggle-justify,flex-start);padding:var(--wa-toggle-padding-y,.75rem) var(--wa-toggle-padding-x,1.15rem);width:var(--wa-toggle-width,auto);height:var(--wa-toggle-height,auto);gap:var(--wa-toggle-gap,.7rem);border-radius:var(--wa-toggle-radius,999px)}
@@ -334,6 +356,7 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
 /* responsive */
 @media (max-width: 1040px){
   .fees-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 @media (max-width: 920px){
   .header{top:12px}
@@ -342,6 +365,7 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
   .fees-grid{grid-template-columns:1fr;}
   .kpis{grid-template-columns:1fr}
   .problems{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));}
   .grid-2{grid-template-columns:1fr}
   .banner-inner{padding:2rem}
   .about-side{position:static;padding:1.6rem}
@@ -351,6 +375,7 @@ hr.sep{border:0;border-top:1px solid #e6eaee;margin:1.75rem 0}
   .header{width:calc(100% - 1.6rem)}
   nav{display:none}
   .problems{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;}
   .header-inner{padding:.65rem .75rem;gap:.5rem}
   /* Keep logo + title and the CTA on one row each (never wrap to a second
      line) by scaling everything down together as the viewport narrows,
