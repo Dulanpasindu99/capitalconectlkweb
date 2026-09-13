@@ -28,8 +28,6 @@
 
   const collapseRange = 180;
   const collapsedShadow = '0 18px 36px rgba(18,140,126,.32)';
-  const collapsedIconShadow = '0 6px 14px rgba(0,0,0,.16)';
-  const collapsedIconBg = 'rgba(255,255,255,.18)';
   let rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   let collapsedSize = 3.25 * rootFontSize;
   let collapsedIconSize = 2.4 * rootFontSize;
@@ -43,8 +41,6 @@
   let expandedShadow = getComputedStyle(toggle).boxShadow;
   let expandedJustify = getComputedStyle(toggle).justifyContent || 'flex-start';
   let expandedIconSize = 0;
-  let expandedIconShadow = getComputedStyle(toggleIcon).boxShadow;
-  let expandedIconBg = getComputedStyle(toggleIcon).backgroundColor;
   let collapseProgress = 0;
   let pendingProgress = 0;
   let frameId = null;
@@ -66,8 +62,6 @@
     toggle.style.removeProperty('--wa-toggle-copy-visibility');
     toggle.style.boxShadow = '';
     toggleIcon.style.removeProperty('--wa-toggle-icon-size');
-    toggleIcon.style.removeProperty('--wa-toggle-icon-shadow');
-    toggleIcon.style.removeProperty('--wa-toggle-icon-bg');
     if(toggleCopy){
       toggleCopy.style.pointerEvents = '';
       toggleCopy.style.display = '';
@@ -88,15 +82,12 @@
       copyVisibility: toggle.style.getPropertyValue('--wa-toggle-copy-visibility'),
       boxShadow: toggle.style.boxShadow,
       iconSize: toggleIcon.style.getPropertyValue('--wa-toggle-icon-size'),
-      iconShadow: toggleIcon.style.getPropertyValue('--wa-toggle-icon-shadow'),
-      iconBg: toggleIcon.style.getPropertyValue('--wa-toggle-icon-bg'),
       pointerEvents: toggleCopy ? toggleCopy.style.pointerEvents : undefined
     };
 
     clearProgressStyles();
 
     const toggleStyles = getComputedStyle(toggle);
-    const iconStyles = getComputedStyle(toggleIcon);
     expandedJustify = toggleStyles.justifyContent || 'flex-start';
     expandedShadow = toggleStyles.boxShadow;
     expandedGap = parseFloat(toggleStyles.columnGap || toggleStyles.gap) || 0;
@@ -108,8 +99,6 @@
     expandedHeight = rect.height;
     const iconRect = toggleIcon.getBoundingClientRect();
     expandedIconSize = iconRect.width;
-    expandedIconShadow = iconStyles.boxShadow;
-    expandedIconBg = iconStyles.backgroundColor;
 
     if(stored.width) toggle.style.setProperty('--wa-toggle-width', stored.width);
     if(stored.height) toggle.style.setProperty('--wa-toggle-height', stored.height);
@@ -123,8 +112,6 @@
     if(stored.copyVisibility) toggle.style.setProperty('--wa-toggle-copy-visibility', stored.copyVisibility);
     if(stored.boxShadow) toggle.style.boxShadow = stored.boxShadow;
     if(stored.iconSize) toggleIcon.style.setProperty('--wa-toggle-icon-size', stored.iconSize);
-    if(stored.iconShadow) toggleIcon.style.setProperty('--wa-toggle-icon-shadow', stored.iconShadow);
-    if(stored.iconBg) toggleIcon.style.setProperty('--wa-toggle-icon-bg', stored.iconBg);
     if(toggleCopy && stored.pointerEvents !== undefined){
       toggleCopy.style.pointerEvents = stored.pointerEvents;
     }
@@ -148,8 +135,6 @@
     const gap = expandedGap * inverse;
     const radius = collapsedRadius * progress + expandedRadius * inverse;
     const iconSize = collapsedIconSize * progress + expandedIconSize * inverse;
-    const iconShadow = progress > 0.8 ? collapsedIconShadow : expandedIconShadow;
-    const iconBg = progress > 0.8 ? collapsedIconBg : expandedIconBg;
     const boxShadow = progress > 0.8 ? collapsedShadow : expandedShadow;
     const justify = progress > 0.75 ? 'center' : expandedJustify;
 
@@ -162,8 +147,6 @@
     toggle.style.setProperty('--wa-toggle-justify', justify);
     toggle.style.boxShadow = boxShadow;
     toggleIcon.style.setProperty('--wa-toggle-icon-size', `${iconSize}px`);
-    toggleIcon.style.setProperty('--wa-toggle-icon-shadow', iconShadow);
-    toggleIcon.style.setProperty('--wa-toggle-icon-bg', iconBg);
     const copyOpacity = Math.max(0, Math.min(1, inverse * 1.2));
     toggle.style.setProperty('--wa-toggle-copy-opacity', copyOpacity.toString());
     const copyShift = `${-12 * progress}px`;
