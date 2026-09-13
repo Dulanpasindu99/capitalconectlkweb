@@ -35,6 +35,7 @@ capitalconectlkweb/
 │   ├── liquid-banner.js       # Pointer-follow glow effect for the .banner CTA block
 │   ├── header-scroll.js       # Header slide-hide-on-scroll behaviour
 │   ├── scroll-reveal.js       # Below-the-fold scroll-in reveal animation
+│   ├── hero-typewriter.js     # Hero heading word-by-word blur-in reveal
 │   ├── whatsapp-widget.js     # WhatsApp widget behaviour (open/close + mobile collapse)
 │   └── whatsapp-icon.svg      # WhatsApp toggle/panel icon — white line icon, single <path>
 └── CLAUDE.md                # This file
@@ -72,8 +73,9 @@ shared `window.CCLK` namespace:
 | `assets/whatsapp-widget.js` | `CCLK.initWhatsApp()` | `.whatsapp-widget` |
 | `assets/header-scroll.js` | `CCLK.initHeaderScroll()` | `.header` |
 | `assets/scroll-reveal.js` | `CCLK.initScrollReveal()` | every `[data-reveal]`/`[data-reveal-group]` |
+| `assets/hero-typewriter.js` | `CCLK.initHeroTypewriter()` | every `[data-typewriter]` |
 
-`assets/include.js` calls all five (guarded, once) after partials are injected,
+`assets/include.js` calls all six (guarded, once) after partials are injected,
 then dispatches a `components:loaded` event on `document`. Each init is
 idempotent (guarded by a `_*Done` flag) so calling twice is safe.
 
@@ -86,6 +88,7 @@ last):
 <script src="assets/whatsapp-widget.js" defer></script>
 <script src="assets/header-scroll.js" defer></script>
 <script src="assets/scroll-reveal.js" defer></script>
+<script src="assets/hero-typewriter.js" defer></script>
 <script src="assets/include.js" defer></script>
 ```
 
@@ -371,6 +374,56 @@ with no yearly edit needed. If you ever touch this, keep the logic in
 `include.js` (it already owns "things that must happen right after partials
 load") rather than adding a dedicated script file just for one line.
 
+### Hero heading "typewriter" reveal
+The hero `<h1>` (`data-typewriter` attribute) reveals word by word on load,
+each word transitioning from blurred/invisible to sharp/visible in
+sequence — `assets/hero-typewriter.js`, exposed as
+`CCLK.initHeroTypewriter()`. This is a **different mechanism** from
+`data-reveal`/`data-reveal-group` above (scroll-triggered, whole-block or
+staggered-children) — the hero is above the fold and always visible
+immediately, so this animates on load regardless of scroll position, not
+on intersection.
+
+How it works: the script walks the h1's existing child nodes at runtime and
+wraps each word — a run of non-space text, or a whole inline element like
+the "Zero" `<span class="liquid-highlight">` — in its own `<span
+class="tw-word" style="--i:N">`, leaving the plain-text whitespace between
+words untouched so line-wrapping stays natural. `styles.css`'s
+`[data-typewriter] .tw-word` rule then handles the actual reveal purely via
+`transition-delay: calc(var(--i) * 70ms)` — no per-word JS timers. **Word
+granularity, not letter-by-letter**: splitting into individual characters
+would mean `filter: blur()` on dozens of tiny inline spans for a headline
+this length (heavier DOM, choppier at small sizes) for a barely-different
+visual result. If per-letter animation is explicitly requested later,
+rework the splitting in the script — don't just shrink `STAGGER_MS`, which
+only changes timing, not granularity.
+
+**Only wrap markup this way if you can also verify it, since transitions
+are notoriously hard to eyeball via a delayed screenshot.** The most
+reliable way to confirm the timing/stagger is correct: from the console,
+call `CCLK.initHeroTypewriter()` (after clearing
+`CCLK._heroTypewriterDone`) and sample `getComputedStyle(word).filter` /
+`.opacity` on a few `.tw-word` elements every ~100ms in one continuous
+`await` loop inside a single script execution — not via separate
+screenshot calls with a `wait` in between, which (at least in this
+project's automated browser tooling) can have enough of their own
+round-trip latency that the animation finishes before the screenshot
+fires, making a correctly-staggered transition look like it "snapped"
+instantly. That's a tooling/latency artifact, not a real bug — verify with
+one uninterrupted sampling loop instead of trusting a delayed screenshot.
+
+`.liquid-highlight` (the "Zero" gradient) is kept as one whole word-unit
+rather than having its own characters split — its `background-clip: text`
+gradient renders normally under the wrapper's `filter: blur()` (filters
+blur the rendered pixels regardless of how the text's color was produced),
+so no special-casing was needed beyond "don't split inside it."
+
+**No `<noscript>` fallback needed here** — unlike `data-reveal`, the hidden
+(blurred/`opacity:0`) state only exists on `.tw-word` spans that the script
+itself creates. If JS never runs, the heading simply stays as its original
+plain, fully-visible text; there's nothing pre-hidden in static HTML to
+leave stranded.
+
 ## Running locally
 
 Partials are fetched over HTTP, so you **must** serve the folder — opening the
@@ -453,6 +506,7 @@ files to the web root.
 | CTA banner glow-follow effect | `assets/liquid-banner.js` + `.banner` CSS |
 | Header shape (fully rounded) + auto-hide-on-scroll | `assets/header-scroll.js` + `.header`/`.is-header-hidden` CSS |
 | Below-the-fold scroll-in reveal animation | `assets/scroll-reveal.js` + `[data-reveal]`/`[data-reveal-group]` CSS |
+| Hero heading word-by-word blur-in reveal | `assets/hero-typewriter.js` + `[data-typewriter]`/`.tw-word` CSS |
 | Component injection / init orchestration | `assets/include.js` |
 | SEO: structured data (JSON-LD) | `index.html` `<head>` (Organization, WebSite, FAQPage) |
 
@@ -493,7 +547,7 @@ it onto the "Open WhatsApp" CTA).
    `contact.html`, the `mailto:` in `partials/footer.html`, and the `mailto:` in
    `partials/whatsapp-widget.html`. (All three currently use
    `capitalconnectlk@gmail.com`.)
-6. When you add a real page, add it to `sitemap.xml` and give it the six
+6. When you add a real page, add it to `sitemap.xml` and give it the seven
    `<script defer>` tags (see load order above) plus the three `data-include`
    placeholders and the `<noscript>` scroll-reveal fallback (see "Scroll
    reveal" below).
@@ -610,6 +664,11 @@ it onto the "Open WhatsApp" CTA).
   line below a divider, with a JS-driven auto-incrementing year
   (`assets/include.js` sets `#footer-year` to `new Date().getFullYear()` on
   every load) instead of a hardcoded year that would go stale.
+- Added a word-by-word blur-to-sharp "typewriter" reveal for the hero
+  heading (`assets/hero-typewriter.js`, `[data-typewriter]`/`.tw-word` in
+  `styles.css`) — an on-load entrance animation, distinct from the
+  scroll-triggered `data-reveal`/`data-reveal-group` system, since the hero
+  is always above the fold (see "Hero heading 'typewriter' reveal" above).
 
 ## Git / project notes
 
