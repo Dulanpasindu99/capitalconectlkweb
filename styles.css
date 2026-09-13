@@ -136,6 +136,27 @@ h1{font-size:clamp(2.1rem, 2.6vw + 1.4rem, 3.2rem);line-height:1.08;margin:.6rem
   50%{background-position:100% 50%,100% 50%;}
   100%{background-position:0% 50%,0% 50%;}
 }
+/* Hero heading "typewriter" reveal — see assets/hero-typewriter.js, which
+   wraps each word of a [data-typewriter] element in a .tw-word span (the
+   "Zero" liquid-highlight is kept whole, as a single word-unit, so its
+   gradient text-clip isn't split apart). Each word starts blurred/
+   invisible/shifted down a touch, then comes into focus in sequence —
+   increasing --i (set per word by the script) delays later words further,
+   producing the left-to-right "typing" feel. Pure CSS transition, no
+   per-frame JS. */
+[data-typewriter] .tw-word{
+  display:inline-block;
+  opacity:0;
+  filter:blur(9px);
+  transform:translateY(8px);
+  transition:opacity .5s ease-out, filter .5s ease-out, transform .5s ease-out;
+  transition-delay:calc(var(--i, 0) * 70ms);
+}
+[data-typewriter].is-typed .tw-word{
+  opacity:1;
+  filter:blur(0);
+  transform:translateY(0);
+}
 .lead{color:var(--muted);max-width:55ch;font-size:1.05rem}
 .media{
   aspect-ratio: 16 / 10; border-radius:24px; overflow:hidden; position:relative;
