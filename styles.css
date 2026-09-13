@@ -217,69 +217,70 @@ h2{font-size:clamp(1.4rem, 1.3vw + 1.2rem, 2.1rem); margin:0 0 .85rem;font-weigh
 
 /* Fee-card hover interaction (pure CSS, no JS): a dark-navy/white "liquid"
    fill rises from the bottom of the card inside .fee-card-clip (which also
-   clips it to the card's rounded corners) over LIQUID_DURATION (8s) below.
-   It's deliberately not a flat wipe: .fee-card-clip::before layers two
-   offset, horizontally-drifting radial-gradient "bumps" (the ripple) over
-   a dark-navy vertical gradient (the body), plus a soft white glow riding
-   the current top edge via a negative-offset box-shadow — which, since
-   it's a shadow of the element's OWN top edge, automatically stays right
-   at the liquid's surface as its height grows, no extra element or JS
-   needed to keep a "wave" in sync with the rise.
-   The rise itself runs as a one-shot @keyframes animation (not a plain
-   transition) so the ripple's own looping animation can run alongside it
-   independently on the same property's background-position. Leaving hover
-   removes that animation; the base rule's plain `transition:height 1s ease`
-   then takes over and smoothly retracts from whatever height the
-   animation had reached — a deliberate two-mechanism combo (animation for
-   the 8s rise, a quicker 1s transition for the retract), which is why the
-   retract duration below is 1s rather than 8s: leaving is meant to feel
-   snappy, not mirror the slow fill.
+   clips it to the card's rounded corners) over LIQUID_DURATION (3s) below.
+   .fee-card-clip::before is a plain rising rectangle (`height` 0%→100%),
+   given a "liquid glow" feel with two purely-decorative, non-shape layers
+   instead of any bumps/scallops along the top edge (an earlier version
+   used repeating radial-gradient "ripple" bumps there — removed by
+   request, it read as an ugly row of bubbles, not a liquid surface): the
+   body itself is a `linear-gradient` from fully transparent at the very
+   top edge into a medium (not near-black) navy blue within its first
+   ~16%, so the top edge reads as a soft fade rather than a hard line —
+   no white anywhere, by request; a color-matched (also navy, not white)
+   negative-offset `box-shadow` glows just *above* the element's own top
+   edge for the same reason. Both automatically track the current fill
+   level because they belong to the *same* rising element — no extra
+   element, sibling-syncing, or JS needed. If retuning the color, keep it
+   "medium" — the very first version was a near-black navy and was asked
+   to be lightened.
+   The rise and its retract are both plain `transition:height`, just with
+   different durations on the base vs. `:hover` rule (a fast ~1s retract,
+   a slow 3s fill) — the same asymmetric-duration technique used below for
+   the overlay text and CTA badge, not a `@keyframes animation` (an earlier
+   version used one, to run an independent looping ripple alongside the
+   rise; with the ripple removed there's no more need for that, so this
+   was simplified back to plain transitions).
    A duplicate, light-colored copy of the card's text
    (.fee-card-face--over, aria-hidden) is revealed with a clip-path
-   transition on the same 8s LIQUID_DURATION/easing as the rise, so the
-   text visually "changes color" right where the liquid has (on average)
-   covered it. Once the fill finishes, the content blurs and a
-   "Request a Call" badge (.fee-card-cta, wrapping a normal .btn so it
-   keeps the liquid-button.js proximity effect) fades in on top, centered:
-   transition-delay on the hover-in rules matches LIQUID_DURATION so
-   nothing blurs/appears before the fill completes. Leaving hover reverses
-   those with no delay (see the plain, non-hover rules below, which
-   intentionally omit the delay) so they snap back the instant the cursor
-   leaves. Keep the 8s values in sync if LIQUID_DURATION changes. */
+   transition on the same 3s LIQUID_DURATION/easing as the rise, so the
+   text visually "changes color" right where the liquid has covered it.
+   Once the fill finishes, the content blurs and a "Request a Call" badge
+   (.fee-card-cta, wrapping a normal .btn so it keeps the liquid-button.js
+   proximity effect) fades in on top, centered: transition-delay on the
+   hover-in rules matches LIQUID_DURATION so nothing blurs/appears before
+   the fill completes. Leaving hover reverses those with no delay (see the
+   plain, non-hover rules below, which intentionally omit the delay) so
+   they snap back the instant the cursor leaves. Keep the 3s values in
+   sync if LIQUID_DURATION changes — search this file for `3s` near
+   `.fee-card` (there are five: the fill itself, the overlay's clip-path,
+   and the three hover-in transition-delays). A past bug here: the
+   overlay's *retract* duration must stay short (its base rule uses `1s`,
+   not `3s`) or leaving hover desyncs it from the liquid's own fast
+   retract — see the "Fee-card hover interaction" section in CLAUDE.md. */
 .fee-card-clip{position:relative;z-index:0;border-radius:inherit;overflow:hidden}
 .fee-card-clip::before{
   content:"";
   position:absolute;inset:auto 0 0 0;height:0%;
-  background-image:
-    radial-gradient(ellipse 46px 16px at 18px 2px, rgba(255,255,255,.55) 55%, transparent 62%),
-    radial-gradient(ellipse 46px 16px at 62px 6px, rgba(255,255,255,.3) 55%, transparent 62%),
-    linear-gradient(180deg,#13327a 0%,#0b1c48 45%,#050b1e 100%);
-  background-repeat:repeat-x,repeat-x,no-repeat;
-  background-size:84px 30px,84px 30px,100% 100%;
-  background-position:0 0,0 0,0 0;
-  box-shadow:0 -10px 24px rgba(255,255,255,.35);
+  background-image:linear-gradient(180deg,
+    rgba(30,58,138,0) 0%,
+    rgba(30,58,138,.82) 16%,
+    rgba(26,48,112,.92) 100%);
+  box-shadow:0 -8px 20px rgba(30,58,138,.4);
   transition:height 1s ease;
 }
 .fee-card:hover .fee-card-clip::before{
-  animation:feeLiquidRise 8s cubic-bezier(.45,0,.2,1) forwards, feeLiquidRipple 2.4s linear infinite;
-}
-@keyframes feeLiquidRise{
-  from{height:0%}
-  to{height:100%}
-}
-@keyframes feeLiquidRipple{
-  from{background-position:0 0,0 0,0 0}
-  to{background-position:84px 0,84px 0,0 0}
+  height:100%;
+  transition:height 3s cubic-bezier(.45,0,.2,1);
 }
 .fee-card-face{position:relative;z-index:1;display:grid;gap:.55rem;padding:1.8rem;filter:blur(0);opacity:1;transition:filter .4s ease, opacity .35s ease}
-.fee-card:hover .fee-card-face{filter:blur(6px);opacity:.35;transition:filter .4s ease 8s, opacity .35s ease 8s}
+.fee-card:hover .fee-card-face{filter:blur(6px);opacity:.35;transition:filter .4s ease 3s, opacity .35s ease 3s}
 .fee-card-face--over{position:absolute;inset:0;z-index:1;color:#fff;pointer-events:none;clip-path:inset(100% 0 0 0);transition:clip-path 1s ease, filter .4s ease, opacity .35s ease}
 .fee-card-face--over .fee-label{background:rgba(255,255,255,.22);color:#fff}
 .fee-card-face--over .fee-rate{color:#fff}
 .fee-card-face--over .caption{color:rgba(255,255,255,.85)}
-.fee-card:hover .fee-card-face--over{clip-path:inset(0 0 0 0);filter:blur(6px);opacity:.35;transition:clip-path 8s cubic-bezier(.45,0,.2,1), filter .4s ease 8s, opacity .35s ease 8s}
+.fee-card:hover .fee-card-face--over{clip-path:inset(0 0 0 0);filter:blur(6px);opacity:.35;transition:clip-path 3s cubic-bezier(.45,0,.2,1), filter .4s ease 3s, opacity .35s ease 3s}
 .fee-card-cta{position:absolute;inset:0;z-index:2;display:grid;place-items:center;opacity:0;pointer-events:none;transform:translateY(8px) scale(.94);transition:opacity .35s ease, transform .35s ease, pointer-events 0s linear .35s}
-.fee-card:hover .fee-card-cta{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);transition:opacity .4s ease 8s, transform .4s ease 8s, pointer-events 0s linear 8s}
+.fee-card:hover .fee-card-cta{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);transition:opacity .4s ease 3s, transform .4s ease 3s, pointer-events 0s linear 3s}
 
 /* banner */
 .banner{
