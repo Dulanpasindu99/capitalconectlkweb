@@ -105,24 +105,49 @@ last):
 
 ### Header shape + auto-hide-on-scroll
 The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
-in `styles.css`, `.header`). `assets/header-scroll.js` is a **two-state
-swap**: a real scroll down fully hides the header (slides it up past the
-top edge of the browser viewport — not a fade, not a collapse-in-place), a
-real scroll up fully brings it back to its default position — not a value
-that tracks scroll position 1:1. It toggles a single `is-header-hidden`
-class on `.header`, and the *smoothness* comes entirely from the CSS
-`transition` on `.header`'s `transform` (`.5s ease-in-out`), which animates
-between the two fixed states (`translate3d(0,0,0)` shown,
-`translate3d(0,-130%,0)` hidden — clear of both the header's own height and
-its top margin).
+in `styles.css`, `.header`). `assets/header-scroll.js` runs a **two-stage
+scroll response**, both driven by toggling classes on `.header` and animated
+by a single CSS `transition` (all `.5s ease-in-out`, so they read as one
+motion):
+
+- **Stage 1 — compact (1st real downward scroll away from the top):** adds
+  `is-header-compact`, which narrows the pill (`width` shrinks from
+  `min(1120px,…)` to `min(1000px,…)`) and slightly tightens `.header-inner`'s
+  horizontal padding and gap. Because it stays centred (`margin-inline:auto`),
+  both ends pull inward — the logo/title move toward the first nav link and
+  the "Book a Call" button toward the last. See "Header compact width" note
+  below for **why the padding/gap also tighten** (the nav content is dense).
+- **Stage 2 — hide (3rd downward scroll):** adds `is-header-hidden`, which
+  slides the already-narrowed pill fully up past the top edge of the viewport
+  (`transform:translate3d(0,-130%,0)` — clear of its height and top margin).
+  Not a fade, not a collapse-in-place; a plain position slide.
+
+So going down the page: 1st scroll narrows, 2nd holds, 3rd slides the narrowed
+bar up. The transition list on `.header` is `transform`, `width`, and
+`box-shadow`; `.header-inner` has its own `padding`/`gap` transition. Pure
+width + position + spacing, no opacity/fade.
 
 **Doesn't hide on the first scroll.** Hiding only kicks in on the
-`HIDE_AFTER_SCROLLS`-th (currently 3rd) separate downward scroll gesture —
-the first two are ignored, giving the visitor a beat before the nav goes
-away. Scrolling up always reveals immediately (no delay), and that grace
-counter resets every time the header is fully visible again (back near the
-top, or after an up-scroll reveal) — so it's "3 free scrolls," repeatable,
-not a one-time thing per page load.
+`HIDE_AFTER_SCROLLS`-th (currently 3rd) separate downward scroll gesture — the
+first (which narrows) and second are not hides, giving the visitor a beat
+before the nav goes away. Scrolling up always reveals immediately (no delay),
+and the header **stays narrowed** on reveal; it only returns to full width
+once you are back near the very top (`REVEAL_AT_TOP`, 40px), where it is
+always full width and fully shown. The grace counter resets every time the
+header is fully visible again — so it is "3 free scrolls," repeatable.
+
+**Header compact width — why padding/gap tighten too.** The nav is dense
+(logo "Capital Connect LK" + 5 links + "Book a Call"); at the full `1120px`
+width it only *just* fits on one line (natural content min is ~1067px). So a
+width reduction *alone* would immediately overflow/wrap. The compact rule
+therefore also drops `.header-inner`'s horizontal padding (`1.2rem` → `.7rem`)
+and gap (`1.4rem` → `1rem`), which shrinks the content enough that the pill
+can genuinely narrow (~120px, 60px each side) with every label still on one
+line — verified at desktop widths, zero overflow, no wrap. **If you widen the
+nav (a longer label, a 6th link), re-check that it still fits at the compact
+width** or the compact numbers need adjusting. On viewports narrower than the
+caps, full and compact both clamp to `100% - 2.4rem`, so the shrink is a
+natural no-op there (and mobile hides the nav below 520px anyway).
 
 This went through a few iterations worth knowing about if you touch it
 again:
@@ -130,8 +155,9 @@ again:
   `assets/whatsapp-widget.js`'s mobile collapse, `--wa-collapse-progress`)
   so the header's position tracked scroll distance directly. That was
   explicitly reverted — it read as choppy/static rather than a fluid
-  animation. **The current two-state design is deliberate; don't reintroduce
-  continuous scroll-tracking without being asked.**
+  animation. **The current class-swap design (compact, then hidden) is
+  deliberate; don't reintroduce continuous scroll-tracking without being
+  asked.**
 - `.header` has no `opacity` tied to hide/show — only `transform` moves.
   Don't reintroduce an opacity fade here either; it was deliberately removed
   in favor of a plain up/down slide.
@@ -145,7 +171,7 @@ again:
   before assuming the duration is too short.
 
 Constants (top of `assets/header-scroll.js`):
-- `REVEAL_AT_TOP` (40px) — always fully visible within this many px of the top.
+- `REVEAL_AT_TOP` (40px) — always fully shown AND full width within this many px of the top.
 - `HIDE_THRESHOLD` (18px) — minimum scroll delta in one frame to count as a
   "real" scroll gesture. Small enough that any real scroll (one wheel tick,
   one trackpad swipe, one arrow-key press) counts; large enough to ignore
@@ -260,10 +286,16 @@ more child items to any staggered group.
 
 ### Nav-anchor scrolling ("Home" + section links)
 The nav (`partials/header.html`) has 5 items: **Home** (`href="/"`, marked
-`data-nav-home`), then Fees/Problems/How It Works/About (`href="/#fees"` etc.
+`data-nav-home`), then Fees/Problems/How This Works/About (`href="/#fees"` etc.
 — root-relative, so they resolve identically from `contact.html` too, per
 the root-relative-link convention below). Home was added because there
 wasn't a way back to the top of the page from the nav itself.
+
+Note: the nav label is **"How This Works"** (changed from "How It Works" by
+request), but the hero's own `#process` button and the `#process` section
+heading still read "How It Works". That wording difference is intentional —
+the request was specifically to change the nav bar label only; do not
+"fix" it to match the others.
 
 Clicking any of these (or the hero's `href="#process"` "How It Works"
 button, or `contact.html`'s `href="#intake-form"` "Request a Call" — any
@@ -1191,6 +1223,18 @@ out of the repo entirely.
   copy is the tracked/served one. Also restyled the intake form's inputs
   from a glassy blue gradient look to clean white fields, per request (see
   "Intake form" above).
+- Renamed the nav label "How It Works" to "How This Works" (nav only — the
+  hero button and section heading keep "How It Works" on purpose; see the
+  note in "Nav-anchor scrolling" above).
+- Added a **stage-1 "compact" step** to the header scroll animation. It
+  previously waited for 3 downward scrolls and then slid up; now the 1st
+  scroll narrows the pill (logo/title and "Book a Call" pull inward toward
+  the nav) and the 3rd still slides the narrowed bar up, all on the same
+  `.5s` timing. Because the nav content barely fits at full width, the
+  compact state also tightens `.header-inner` padding/gap so it can narrow
+  without wrapping — see "Header shape + auto-hide-on-scroll" for the full
+  behavior and the width math. Verified the whole sequence
+  (narrow → hold → hide → reveal-narrowed → full at top) end to end.
 
 ## Git / project notes
 
