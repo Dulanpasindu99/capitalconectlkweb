@@ -76,7 +76,7 @@ img{max-width:100%;display:block}
      Pure width + position only, no opacity/fade. Deliberately not
      shortened/disabled for prefers-reduced-motion — see the top comment in
      assets/header-scroll.js. */
-  transition:transform .5s ease-in-out, width .5s ease-in-out, box-shadow .4s ease;
+  transition:transform .35s ease-in-out, width .35s ease-in-out, box-shadow .35s ease;
   will-change:transform, width;
 }
 /* Stage 1: narrowed pill. As well as reducing the width (same min() shape as
@@ -100,7 +100,7 @@ img{max-width:100%;display:block}
   transform:translate3d(0,-130%,0);
   pointer-events:none;
 }
-.header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem; transition:padding .5s ease-in-out, gap .5s ease-in-out}
+.header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem; transition:padding .35s ease-in-out, gap .35s ease-in-out}
 /* Nav-anchor targets: clear the sticky .header on a jump-to-fragment
    (native, or via assets/nav-scroll.js) instead of landing underneath it.
    Plain-CSS fallback — assets/nav-scroll.js does the fuller centering/

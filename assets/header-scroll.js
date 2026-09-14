@@ -15,10 +15,10 @@
  *   1st scroll narrows, 2nd holds, 3rd slides the narrowed bar up.
  *
  * Both stages use the same transition timing (see `.header` in styles.css)
- * so they feel like one coherent motion. Scrolling back UP always reveals
- * the header immediately (still narrowed); it only returns to full width
- * once you are back near the very top of the page. Near the top it is always
- * fully shown and full width.
+ * so they feel like one coherent motion. Scrolling back UP reveals the
+ * header AND expands it back to full width immediately — the narrowed bar
+ * slides down and widens together, without waiting to reach the top. Near
+ * the top it is always fully shown and full width.
  *
  * Exposes window.CCLK.initHeaderScroll(); assets/include.js calls it once,
  * after the shared header partial (partials/header.html) has been injected.
@@ -128,10 +128,12 @@
           }
         }
       } else if (delta < -HIDE_THRESHOLD) {
-        // Scroll up reveals immediately; it stays narrowed until we are
-        // back near the top (handled by the REVEAL_AT_TOP branch above).
+        // Scroll up reveals AND expands back to full width immediately —
+        // the narrowed bar slides back down and widens in one motion,
+        // without waiting to reach the top.
         downScrollCount = 0;
         setHidden(false);
+        setCompact(false);
       }
     }
 
