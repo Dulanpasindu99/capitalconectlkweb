@@ -13,6 +13,10 @@ DESIGN.md
 # working file out of the repo. See CLAUDE.md "WhatsApp icon".
 /whatsapp-icon.svg
 
+# The user's dropped-in pitch-deck original (spaces in the name). The served
+# copy is capital-connect-lk-pitch-deck.pdf (clean URL) — that one is tracked.
+/Capital Connect LK Pitch Deck.pdf
+
 # OS / editor junk
 .DS_Store
 Thumbs.db
