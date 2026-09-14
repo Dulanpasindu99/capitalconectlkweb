@@ -66,20 +66,41 @@ img{max-width:100%;display:block}
   box-shadow:0 18px 48px rgba(10,20,60,.18);
   backdrop-filter:saturate(180%) blur(28px);
   transform:translate3d(0,0,0);
-  /* Two-state swap (assets/header-scroll.js toggles .is-header-hidden on
-     the 3rd real downward scroll) animated by this transition — a slow,
-     clearly-visible eased slide up past the viewport's top edge and back
-     down, not a per-frame value tracking scroll position. Pure transform
-     only, no opacity/fade. Deliberately not shortened/disabled for
-     prefers-reduced-motion — see assets/header-scroll.js's top comment. */
-  transition:transform .5s ease-in-out, box-shadow .4s ease;
-  will-change:transform;
+  /* Two-stage scroll response, both driven by assets/header-scroll.js
+     toggling classes and animated by this single transition (same timing
+     so they feel like one motion):
+       - .is-header-compact (1st real downward scroll): `width` shrinks, so
+         the centered bar pulls both ends inward toward the nav.
+       - .is-header-hidden (3rd downward scroll): `transform` slides the
+         narrowed bar up past the viewport's top edge.
+     Pure width + position only, no opacity/fade. Deliberately not
+     shortened/disabled for prefers-reduced-motion — see the top comment in
+     assets/header-scroll.js. */
+  transition:transform .5s ease-in-out, width .5s ease-in-out, box-shadow .4s ease;
+  will-change:transform, width;
+}
+/* Stage 1: narrowed pill. As well as reducing the width (same min() shape as
+   the base rule, so it still clamps to the viewport on small screens where
+   full and compact converge and the shrink is a natural no-op), the inner
+   horizontal padding and the gaps between logo / nav / button tighten a
+   little. The nav content is dense — at the full width it only just fits on
+   one line — so a width reduction alone would overflow; tightening padding
+   and gap lets the bar genuinely narrow (~120px, 60px each side) while every
+   label stays on one line. Padding and gap animate on the same timing as the
+   width (see .header-inner's transition below). */
+.header.is-header-compact{
+  width:min(1000px, 100% - 2.4rem);
+}
+.header.is-header-compact .header-inner{
+  padding-left:.7rem;
+  padding-right:.7rem;
+  gap:1rem;
 }
 .header.is-header-hidden{
   transform:translate3d(0,-130%,0);
   pointer-events:none;
 }
-.header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem}
+.header-inner{display:flex;align-items:center;justify-content:space-between; padding:.85rem 1.2rem; gap:1.4rem; transition:padding .5s ease-in-out, gap .5s ease-in-out}
 /* Nav-anchor targets: clear the sticky .header on a jump-to-fragment
    (native, or via assets/nav-scroll.js) instead of landing underneath it.
    Plain-CSS fallback — assets/nav-scroll.js does the fuller centering/
