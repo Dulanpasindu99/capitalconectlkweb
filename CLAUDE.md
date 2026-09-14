@@ -107,7 +107,7 @@ last):
 The header (`partials/header.html`) is a fully rounded pill (`border-radius:999px`
 in `styles.css`, `.header`). `assets/header-scroll.js` runs a **two-stage
 scroll response**, both driven by toggling classes on `.header` and animated
-by a single CSS `transition` (all `.5s ease-in-out`, so they read as one
+by a single CSS `transition` (all `.35s ease-in-out`, so they read as one
 motion):
 
 - **Stage 1 — compact (1st real downward scroll away from the top):** adds
@@ -131,10 +131,13 @@ width + position + spacing, no opacity/fade.
 `HIDE_AFTER_SCROLLS`-th (currently 3rd) separate downward scroll gesture — the
 first (which narrows) and second are not hides, giving the visitor a beat
 before the nav goes away. Scrolling up always reveals immediately (no delay),
-and the header **stays narrowed** on reveal; it only returns to full width
-once you are back near the very top (`REVEAL_AT_TOP`, 40px), where it is
-always full width and fully shown. The grace counter resets every time the
-header is fully visible again — so it is "3 free scrolls," repeatable.
+and on that same up-scroll the header **also expands straight back to full
+width** — the narrowed bar slides back down and widens together, it does NOT
+wait to reach the top (this was changed by request; an earlier version kept
+it narrowed on reveal until you returned near the top). Near the very top
+(`REVEAL_AT_TOP`, 40px) it is always full width and fully shown regardless.
+The grace counter resets every time the header is fully visible again — so it
+is "3 free scrolls," repeatable.
 
 **Header compact width — why padding/gap tighten too.** The nav is dense
 (logo "Capital Connect LK" + 5 links + "Book a Call"); at the full `1120px`
@@ -180,12 +183,15 @@ Constants (top of `assets/header-scroll.js`):
   gestures required before the header starts hiding.
 
 Transition duration/easing lives in `styles.css` on `.header` (`transition:
-transform .5s ease-in-out, ...`) — that's what to tune for "faster snap" vs.
-"slower glide," not the JS. See the easing note above before reaching for a
-non-linear/eased-out curve here. (Went `.45s` → `.7s`/`.8s` → `.5s` across
-rounds of feedback — too fast felt like a snap, too slow felt sluggish;
-`.5s` with plain `ease-in-out` was the setting that landed as "smooth" without
-feeling slow.)
+transform .35s ease-in-out, width .35s ..., ...`) and on `.header-inner`
+(`padding`/`gap`, same `.35s`) — that's what to tune for "faster snap" vs.
+"slower glide," not the JS. **Keep the `.header` and `.header-inner`
+durations in sync** so the width, slide, and padding/gap move together. See
+the easing note above before reaching for a non-linear/eased-out curve here.
+(Duration went `.45s` → `.7s`/`.8s` → `.5s` → `.35s` across rounds of
+feedback — too fast felt like a snap, too slow felt sluggish; the latest
+request was to speed the `.5s` up "a bit," which landed at `.35s`, still
+plain `ease-in-out`.)
 
 **Important — the transition is NOT dropped for `prefers-reduced-motion`.**
 An earlier version both (a) fully disabled the JS hide/show logic under
@@ -1229,12 +1235,16 @@ out of the repo entirely.
 - Added a **stage-1 "compact" step** to the header scroll animation. It
   previously waited for 3 downward scrolls and then slid up; now the 1st
   scroll narrows the pill (logo/title and "Book a Call" pull inward toward
-  the nav) and the 3rd still slides the narrowed bar up, all on the same
-  `.5s` timing. Because the nav content barely fits at full width, the
-  compact state also tightens `.header-inner` padding/gap so it can narrow
-  without wrapping — see "Header shape + auto-hide-on-scroll" for the full
-  behavior and the width math. Verified the whole sequence
-  (narrow → hold → hide → reveal-narrowed → full at top) end to end.
+  the nav) and the 3rd still slides the narrowed bar up. Because the nav
+  content barely fits at full width, the compact state also tightens
+  `.header-inner` padding/gap so it can narrow without wrapping — see
+  "Header shape + auto-hide-on-scroll" for the full behavior and the width
+  math. Verified the whole sequence end to end.
+- Followed up with two tweaks to that animation, by request: sped the
+  timing from `.5s` to `.35s` (all of transform/width/padding/gap, kept
+  plain `ease-in-out`), and changed the up-scroll behavior so scrolling up
+  now reveals the header AND expands it back to full width in one motion,
+  instead of staying narrowed until you returned near the top.
 
 ## Git / project notes
 
