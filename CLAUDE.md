@@ -27,6 +27,7 @@ capitalconectlkweb/
 ├── robots.txt               # Allows all crawlers, points to sitemap.xml
 ├── logo.png                 # On-page logo, transparent (header/footer/form)
 ├── og-image.png             # Social-share + JSON-LD logo image, solid dark bg
+├── capital-connect-lk-pitch-deck.pdf   # Investor pitch deck (contact page "View Our Deck")
 ├── README.md                # Public-facing project overview + deploy/security
 ├── .gitignore               # Keeps agent/editor tooling + OS junk out of the repo
 ├── partials/                # Shared components — injected via data-include (SEE BELOW)
@@ -752,6 +753,25 @@ The progress bar and the Submit button share one row (`.form-footer-row` >
 the available width, the button sits at the end, wrapping to stack below on
 narrow screens.
 
+**Field styling — clean white inputs.** `.input` (and `select.input`) is a
+plain white field with a 1px light-grey border (`#d7dfea`), 14px radius, a
+tiny shadow, and a blue border + soft ring on `:focus`. This deliberately
+replaced an earlier glassy light-blue gradient-border treatment, per a
+request for a more professional look — do not reintroduce the tinted/glass
+input background. The surrounding form *card* keeps its glass look; only the
+inputs themselves are white.
+
+**"View Our Deck" links to the pitch-deck PDF.** The `.deck` element in the
+`.learn-more` card is an `<a href="/capital-connect-lk-pitch-deck.pdf"
+target="_blank" rel="noopener noreferrer">` (not a plain `<div>`), so it
+opens the investor deck (`capital-connect-lk-pitch-deck.pdf` at the repo
+root) in a new tab. That PDF is a hand-maintained design deliverable (the
+user's own PowerPoint export — see the pitch-deck changelog note); to update
+the deck, replace that file, do not regenerate over it. The
+link is a normal cross-path navigation, so `assets/nav-scroll.js` does not
+intercept it and the CSP does not block it (navigations are not gated by the
+CSP directives in use).
+
 **Container width matches the rest of the site.** The page's `<div
 class="container">` no longer carries an inline `style="max-width:760px"` —
 it now uses the standard `.container` width (`min(1120px, 100% - 2.4rem)`),
@@ -1154,6 +1174,23 @@ out of the repo entirely.
   out of the repo; keeps `.claude/launch.json` tracked). Audited the
   tracked source: no secrets, no debug/`console.log`, no TODOs, no
   insecure `http://` references.
+- Added an investor **pitch deck** and wired it into the site. A 16:9
+  PowerPoint was first generated as a starting deliverable (same structure
+  as a prior reference deck: cover, overview, problem, solution, statement,
+  5-step process, fees, contact — brand navy/blue, Segoe UI for guaranteed
+  rendering on recipients' machines, contraction-free copy). The user then
+  **edited that deck in PowerPoint** (their served version drops the problem
+  slide and adjusts some wording) and exported their own PDF. That
+  user-edited PDF is what is served here as
+  `capital-connect-lk-pitch-deck.pdf` (repo root), and it is what the
+  contact page's "View Our Deck" button opens (it was previously a dead
+  `<div>`). **This PDF is a hand-maintained design deliverable, not a
+  generated artifact — do not overwrite it by regenerating a deck; to
+  update it, replace the file with a new export.** The user's original
+  dropped-in copy (spaces in the filename) is git-ignored; the clean-named
+  copy is the tracked/served one. Also restyled the intake form's inputs
+  from a glassy blue gradient look to clean white fields, per request (see
+  "Intake form" above).
 
 ## Git / project notes
 
